@@ -1,0 +1,93 @@
+name: Fetch RAPT Data
+
+on:
+  schedule:
+    # Run every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get RAPT access token
+        id: auth
+        run: |
+          TOKEN_RESPONSE=$(curl -s -X POST "https://id.rapt.io/connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "client_id=rapt-user&grant_type=password&username=${{ secrets.RAPT_USERNAME }}&password=${{ secrets.RAPT_API_SECRET }}")
+
+          TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Fetch RAPT telemetry for both Pills
+        id: fetch_data
+        run: |
+          TOKEN="${{ steps.auth.outputs.token }}"
+
+          # Get all Hydrometers
+          PILLS=$(curl -s -X GET "https://api.rapt.io/api/Hydrometers/GetHydrometers" \
+            -H "Authorization: Bearer $TOKEN")
+
+          echo "response=$PILLS" >> $GITHUB_OUTPUT
+
+      - name: Update data.json
+        run: |
+          PILLS='${{ steps.fetch_data.outputs.response }}'
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Extract data for both active Pills using grep/sed (simpler than jq)
+          # reddymc redface: b593f1b8-8c3d-4f5e-a798-6e7a3569a85b
+          # yellow mc yellow face: 176cc4c3-9e13-4106-b1c0-7455b4f9ca7c
+
+          REDDYMC_TEMP=$(echo "$PILLS" | grep -o '"id":"b593f1b8-8c3d-4f5e-a798-6e7a3569a85b"[^}]*"temperature":[0-9.]*' | grep -o '[0-9.]*$')
+          REDDYMC_GRAV=$(echo "$PILLS" | grep -o '"id":"b593f1b8-8c3d-4f5e-a798-6e7a3569a85b"[^}]*"gravity":[0-9.]*' | grep -o '[0-9.]*$')
+          REDDYMC_BATT=$(echo "$PILLS" | grep -o '"id":"b593f1b8-8c3d-4f5e-a798-6e7a3569a85b"[^}]*"battery":[0-9.]*' | grep -o '[0-9.]*$')
+
+          YELLOW_TEMP=$(echo "$PILLS" | grep -o '"id":"176cc4c3-9e13-4106-b1c0-7455b4f9ca7c"[^}]*"temperature":[0-9.]*' | grep -o '[0-9.]*$')
+          YELLOW_GRAV=$(echo "$PILLS" | grep -o '"id":"176cc4c3-9e13-4106-b1c0-7455b4f9ca7c"[^}]*"gravity":[0-9.]*' | grep -o '[0-9.]*$')
+          YELLOW_BATT=$(echo "$PILLS" | grep -o '"id":"176cc4c3-9e13-4106-b1c0-7455b4f9ca7c"[^}]*"battery":[0-9.]*' | grep -o '[0-9.]*$')
+
+          # Create updated data.json with both Pills
+          cat > data.json << EOF
+          {
+            "pills": [
+              {
+                "name": "reddymc redface",
+                "id": "b593f1b8-8c3d-4f5e-a798-6e7a3569a85b",
+                "temperature": $REDDYMC_TEMP,
+                "gravity": $REDDYMC_GRAV,
+                "battery": $REDDYMC_BATT
+              },
+              {
+                "name": "yellow mc yellow face",
+                "id": "176cc4c3-9e13-4106-b1c0-7455b4f9ca7c",
+                "temperature": $YELLOW_TEMP,
+                "gravity": $YELLOW_GRAV,
+                "battery": $YELLOW_BATT
+              }
+            ],
+            "lastUpdated": "$TIMESTAMP"
+          }
+          EOF
+
+          echo "Updated data.json"
+          cat data.json
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Only commit if data.json changed
+          if git diff --quiet data.json; then
+            echo "No changes to commit"
+          else
+            git add data.json
+            git commit -m "Update fermenter data: $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)"
+            git push
+          fi
