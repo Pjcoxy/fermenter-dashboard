@@ -238,12 +238,26 @@
             margin-left: auto;
             font-size: 11px;
             padding: 6px 12px;
-            background: rgba(100, 200, 100, 0.2);
-            color: #7ff593;
             border-radius: 20px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pill-status.active {
+            background: rgba(100, 200, 100, 0.2);
+            color: #7ff593;
+        }
+
+        .pill-status.stale {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .pill-status.inactive {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
         }
 
         /* Metrics Grid */
@@ -467,7 +481,7 @@
                 <div class="pill-header">
                     <div class="pill-indicator reddy"></div>
                     <div class="pill-name" id="reddy-name">--</div>
-                    <div class="pill-status">Active</div>
+                    <div class="pill-status" id="reddy-status">Active</div>
                 </div>
 
                 <div class="metrics-grid">
@@ -494,7 +508,7 @@
                 <div class="pill-header">
                     <div class="pill-indicator yellow"></div>
                     <div class="pill-name" id="yellow-name">--</div>
-                    <div class="pill-status">Active</div>
+                    <div class="pill-status" id="yellow-status">Active</div>
                 </div>
 
                 <div class="metrics-grid">
@@ -541,6 +555,27 @@
     <script>
         let allData = null;
 
+        function getPillStatus(pill, lastUpdateMinutes) {
+            // Check if pill has data
+            if (!pill || pill.temperature === null || pill.gravity === null) {
+                return { status: 'inactive', label: 'No Data' };
+            }
+
+            // Check battery level
+            if (pill.battery < 5) {
+                return { status: 'inactive', label: 'Low Battery' };
+            }
+
+            // Check data freshness
+            if (lastUpdateMinutes > 60) {
+                return { status: 'inactive', label: 'Offline' };
+            } else if (lastUpdateMinutes > 45) {
+                return { status: 'stale', label: 'Stale' };
+            } else {
+                return { status: 'active', label: 'Active' };
+            }
+        }
+
         function updateDisplay() {
             if (!allData || !allData.pills) return;
 
@@ -569,6 +604,19 @@
             const lastUpdate = new Date(allData.lastUpdated);
             const now = new Date();
             const diffMinutes = Math.floor((now - lastUpdate) / 60000);
+
+            // Update pill status
+            const reddyStatus = getPillStatus(reddy, diffMinutes);
+            const yellowStatus = getPillStatus(yellow, diffMinutes);
+
+            const reddyStatusEl = document.getElementById('reddy-status');
+            const yellowStatusEl = document.getElementById('yellow-status');
+
+            reddyStatusEl.textContent = reddyStatus.label;
+            reddyStatusEl.className = `pill-status ${reddyStatus.status}`;
+
+            yellowStatusEl.textContent = yellowStatus.label;
+            yellowStatusEl.className = `pill-status ${yellowStatus.status}`;
 
             const formatter = new Intl.DateTimeFormat('en-AU', {
                 timeZone: 'Australia/Perth',
