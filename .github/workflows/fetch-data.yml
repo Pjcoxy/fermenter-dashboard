@@ -2,8 +2,8 @@ name: Fetch RAPT Data
 
 on:
   schedule:
-    # Run every 1 minute (testing)
-    - cron: '* * * * *'
+    # GitHub's scheduler is unreliable; use external cron service instead (see README)
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:

@@ -59,7 +59,27 @@ Your dashboard will be available at: `https://pjcoxy.github.io/fermenter-dashboa
 1. Go to **Actions** tab
 2. You should see "Fetch RAPT Data" workflow
 3. Click **Run workflow** to test it manually
-4. The workflow runs automatically on a schedule (edit cron in `.github/workflows/fetch-data.yml`)
+4. For automatic scheduled runs, use an external cron service (see below)
+
+### 5. Set Up External Cron Service (Required for Automation)
+
+GitHub's built-in scheduler is unreliable. Use **cron-job.org** (free) to trigger the workflow:
+
+1. Go to [cron-job.org](https://cron-job.org)
+2. Sign up (free account)
+3. Create a new cronjob with these settings:
+   - **Title**: `Fermenter Dashboard Update`
+   - **URL**: `https://api.github.com/repos/Pjcoxy/fermenter-dashboard/actions/workflows/fetch-data.yml/dispatches`
+   - **Request Method**: `POST`
+   - **Cron Expression**: `0 */15 * * * *` (every 15 minutes)
+   - **HTTP Auth**:
+     - Username: `x-access-token`
+     - Password: [Your GitHub Personal Access Token](https://github.com/settings/tokens)
+   - **Request Body**: `{"ref":"main"}`
+   - **Headers**: `Content-Type: application/json`
+4. Click **Save** and enable the cronjob
+
+Done! The workflow will now run every 15 minutes.
 
 ## API Integration Notes
 
