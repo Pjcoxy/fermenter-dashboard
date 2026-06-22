@@ -194,18 +194,16 @@
             const now = new Date();
             const diffMinutes = Math.floor((now - lastUpdate) / 60000);
 
-            // Convert to Perth time (UTC+8)
-            const perthTime = new Date(lastUpdate.getTime() + (8 * 60 * 60 * 1000));
-            const timeOptions = {
-                year: 'numeric',
-                month: '2-digit',
+            // Format Perth time (Australia/Perth timezone)
+            const formatter = new Intl.DateTimeFormat('en-AU', {
+                timeZone: 'Australia/Perth',
                 day: '2-digit',
+                month: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit',
                 hour12: false
-            };
-            const perthTimeStr = perthTime.toLocaleString('en-AU', timeOptions) + ' AWST';
+            });
+            const perthTimeStr = formatter.format(lastUpdate) + ' AWST';
 
             let agoStr = '';
             if (diffMinutes < 1) {
