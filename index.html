@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAPT Fermenter Monitor</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         * {
             margin: 0;
@@ -105,6 +106,36 @@
             text-transform: uppercase;
             margin: 0 0 5px 0;
             line-height: 1;
+        }
+
+        /* Charts */
+        .pill-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .chart-container {
+            background: rgba(20, 40, 70, 0.4);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+            height: 200px;
+        }
+
+        .chart-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .chart-canvas {
+            height: 160px;
         }
 
         /* Mobile Responsive */
@@ -501,6 +532,17 @@
                         <div class="metric-unit">%</div>
                     </div>
                 </div>
+
+                <div class="pill-charts">
+                    <div class="chart-container">
+                        <div class="chart-title">Temperature Trend</div>
+                        <canvas id="chart-temp-reddy" class="chart-canvas"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Gravity Trend</div>
+                        <canvas id="chart-gravity-reddy" class="chart-canvas"></canvas>
+                    </div>
+                </div>
             </div>
 
             <!-- Yellow Pill -->
@@ -526,6 +568,17 @@
                         <div class="metric-label">Battery</div>
                         <div class="metric-value" id="battery-yellow">--</div>
                         <div class="metric-unit">%</div>
+                    </div>
+                </div>
+
+                <div class="pill-charts">
+                    <div class="chart-container">
+                        <div class="chart-title">Temperature Trend</div>
+                        <canvas id="chart-temp-yellow" class="chart-canvas"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Gravity Trend</div>
+                        <canvas id="chart-gravity-yellow" class="chart-canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -554,19 +607,19 @@
 
     <script>
         let allData = null;
+        let charts = {};
+        let chartData = {
+            reddy: { temps: [], gravities: [], times: [] },
+            yellow: { temps: [], gravities: [], times: [] }
+        };
 
         function getPillStatus(pill, lastUpdateMinutes) {
-            // Check if pill has data
             if (!pill || pill.temperature === null || pill.gravity === null) {
                 return { status: 'inactive', label: 'No Data' };
             }
-
-            // Check battery level
             if (pill.battery < 5) {
                 return { status: 'inactive', label: 'Low Battery' };
             }
-
-            // Check data freshness
             if (lastUpdateMinutes > 60) {
                 return { status: 'inactive', label: 'Offline' };
             } else if (lastUpdateMinutes > 45) {
@@ -576,47 +629,119 @@
             }
         }
 
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.7)',
+                        titleColor: '#e0e0e0',
+                        bodyColor: '#e0e0e0',
+                        borderColor: 'rgba(100,150,255,0.3)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: '#888', font: { size: 10 } },
+                        grid: { color: 'rgba(100,150,255,0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#888', font: { size: 9 } },
+                        grid: { color: 'rgba(100,150,255,0.1)' }
+                    }
+                }
+            };
+
+            if (!document.getElementById('chart-temp-reddy')) return;
+
+            charts.tempReddy = new Chart(document.getElementById('chart-temp-reddy'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
+                options: chartOptions
+            });
+
+            charts.gravityReddy = new Chart(document.getElementById('chart-gravity-reddy'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
+                options: chartOptions
+            });
+
+            charts.tempYellow = new Chart(document.getElementById('chart-temp-yellow'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#ffd93d', backgroundColor: 'rgba(255,217,61,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
+                options: chartOptions
+            });
+
+            charts.gravityYellow = new Chart(document.getElementById('chart-gravity-yellow'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#ffd93d', backgroundColor: 'rgba(255,217,61,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
+                options: chartOptions
+            });
+        }
+
+        function addDataPoint(pill, temp, gravity, time) {
+            chartData[pill].temps.push(temp);
+            chartData[pill].gravities.push(gravity);
+            chartData[pill].times.push(time);
+
+            if (chartData[pill].temps.length > 50) {
+                chartData[pill].temps.shift();
+                chartData[pill].gravities.shift();
+                chartData[pill].times.shift();
+            }
+        }
+
+        function updateCharts() {
+            if (charts.tempReddy) {
+                charts.tempReddy.data.labels = chartData.reddy.times;
+                charts.tempReddy.data.datasets[0].data = chartData.reddy.temps;
+                charts.tempReddy.update('none');
+
+                charts.gravityReddy.data.labels = chartData.reddy.times;
+                charts.gravityReddy.data.datasets[0].data = chartData.reddy.gravities;
+                charts.gravityReddy.update('none');
+
+                charts.tempYellow.data.labels = chartData.yellow.times;
+                charts.tempYellow.data.datasets[0].data = chartData.yellow.temps;
+                charts.tempYellow.update('none');
+
+                charts.gravityYellow.data.labels = chartData.yellow.times;
+                charts.gravityYellow.data.datasets[0].data = chartData.yellow.gravities;
+                charts.gravityYellow.update('none');
+            }
+        }
+
         function updateDisplay() {
             if (!allData || !allData.pills) return;
 
             const reddy = allData.pills[0];
             const yellow = allData.pills[1];
 
-            // Reddy
             document.getElementById('reddy-name').textContent = reddy.name || 'reddymc redface';
-            document.getElementById('temp-reddy').textContent =
-                reddy.temperature !== null ? reddy.temperature.toFixed(2) : '--';
-            document.getElementById('gravity-reddy').textContent =
-                reddy.gravity !== null ? reddy.gravity.toFixed(2) : '--';
-            document.getElementById('battery-reddy').textContent =
-                reddy.battery !== null ? reddy.battery.toFixed(0) : '--';
+            document.getElementById('temp-reddy').textContent = reddy.temperature !== null ? reddy.temperature.toFixed(2) : '--';
+            document.getElementById('gravity-reddy').textContent = reddy.gravity !== null ? reddy.gravity.toFixed(2) : '--';
+            document.getElementById('battery-reddy').textContent = reddy.battery !== null ? reddy.battery.toFixed(0) : '--';
 
-            // Yellow
             document.getElementById('yellow-name').textContent = yellow.name || 'yellow mc yellow face';
-            document.getElementById('temp-yellow').textContent =
-                yellow.temperature !== null ? yellow.temperature.toFixed(2) : '--';
-            document.getElementById('gravity-yellow').textContent =
-                yellow.gravity !== null ? yellow.gravity.toFixed(2) : '--';
-            document.getElementById('battery-yellow').textContent =
-                yellow.battery !== null ? yellow.battery.toFixed(0) : '--';
+            document.getElementById('temp-yellow').textContent = yellow.temperature !== null ? yellow.temperature.toFixed(2) : '--';
+            document.getElementById('gravity-yellow').textContent = yellow.gravity !== null ? yellow.gravity.toFixed(2) : '--';
+            document.getElementById('battery-yellow').textContent = yellow.battery !== null ? yellow.battery.toFixed(0) : '--';
 
-            // Timestamp
             const lastUpdate = new Date(allData.lastUpdated);
             const now = new Date();
             const diffMinutes = Math.floor((now - lastUpdate) / 60000);
 
-            // Update pill status
             const reddyStatus = getPillStatus(reddy, diffMinutes);
             const yellowStatus = getPillStatus(yellow, diffMinutes);
 
-            const reddyStatusEl = document.getElementById('reddy-status');
-            const yellowStatusEl = document.getElementById('yellow-status');
+            document.getElementById('reddy-status').textContent = reddyStatus.label;
+            document.getElementById('reddy-status').className = `pill-status ${reddyStatus.status}`;
 
-            reddyStatusEl.textContent = reddyStatus.label;
-            reddyStatusEl.className = `pill-status ${reddyStatus.status}`;
-
-            yellowStatusEl.textContent = yellowStatus.label;
-            yellowStatusEl.className = `pill-status ${yellowStatus.status}`;
+            document.getElementById('yellow-status').textContent = yellowStatus.label;
+            document.getElementById('yellow-status').className = `pill-status ${yellowStatus.status}`;
 
             const formatter = new Intl.DateTimeFormat('en-AU', {
                 timeZone: 'Australia/Perth',
@@ -629,11 +754,9 @@
             const perthTimeStr = formatter.format(lastUpdate) + ' AWST';
 
             let agoStr = '';
-            if (diffMinutes < 1) {
-                agoStr = 'Just now';
-            } else if (diffMinutes < 60) {
-                agoStr = `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-            } else if (diffMinutes < 1440) {
+            if (diffMinutes < 1) agoStr = 'Just now';
+            else if (diffMinutes < 60) agoStr = `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+            else if (diffMinutes < 1440) {
                 const hours = Math.floor(diffMinutes / 60);
                 agoStr = `${hours} hour${hours !== 1 ? 's' : ''} ago`;
             } else {
@@ -644,14 +767,22 @@
             document.getElementById('lastUpdated-time').textContent = perthTimeStr;
             document.getElementById('lastUpdated-ago').textContent = agoStr;
             document.getElementById('error').style.display = 'none';
+
+            const timeStr = lastUpdate.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+            if (reddy.temperature !== null && reddy.gravity !== null) {
+                addDataPoint('reddy', reddy.temperature, reddy.gravity, timeStr);
+            }
+            if (yellow.temperature !== null && yellow.gravity !== null) {
+                addDataPoint('yellow', yellow.temperature, yellow.gravity, timeStr);
+            }
+
+            updateCharts();
         }
 
         async function loadData() {
             try {
                 const response = await fetch('data.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 allData = await response.json();
                 updateDisplay();
             } catch (err) {
@@ -662,6 +793,7 @@
         }
 
         loadData();
+        setTimeout(initCharts, 500);
         setInterval(loadData, 30000);
         setInterval(updateDisplay, 1000);
     </script>
