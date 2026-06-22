@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -23,177 +23,126 @@
 
         .container {
             background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
-            padding: 50px;
-            max-width: 700px;
+            border-radius: 24px;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+            padding: 60px 40px 40px;
+            max-width: 900px;
             width: 100%;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 45px;
-        }
-
-        .logo {
-            font-size: 48px;
-            margin-bottom: 15px;
+            margin-bottom: 40px;
         }
 
         h1 {
             color: #1a1a2e;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            margin-bottom: 5px;
         }
 
         .subtitle {
-            color: #666;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .pill-selector {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 40px;
-            border-radius: 12px;
-            background: #f8f8f8;
-            padding: 6px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 14px 20px;
-            border: none;
-            background: transparent;
-            font-size: 14px;
+            color: #888;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             font-weight: 600;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            color: #666;
-            position: relative;
         }
 
-        .tab-btn.active {
-            color: #fff;
+        .pills-container {
+            position: relative;
+            margin-bottom: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .pills-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            width: 100%;
+        }
+
+        .pill-data {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
             font-weight: 700;
         }
 
-        .tab-btn#tab-reddy.active {
-            background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
-            box-shadow: 0 8px 20px rgba(139, 0, 0, 0.3);
+        .pill-data.reddy {
+            left: 12%;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
         }
 
-        .tab-btn#tab-yellow.active {
-            background: linear-gradient(135deg, #FFB90F 0%, #FFA500 100%);
-            box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
+        .pill-data.yellow {
+            right: 12%;
+            top: 50%;
+            transform: translateY(-50%);
             color: #333;
         }
 
-        .tab-btn:hover:not(.active) {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .pill-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        .pill-indicator.reddy {
-            background: #8B0000;
-        }
-
-        .pill-indicator.yellow {
-            background: #FFB90F;
-        }
-
-        .data-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-            border-radius: 16px;
-            padding: 35px;
-            margin-bottom: 25px;
-            border: 1px solid #e8e8e8;
-        }
-
-        .data-card.active-reddy {
-            border-left: 5px solid #8B0000;
-            background: linear-gradient(135deg, rgba(139, 0, 0, 0.03) 0%, #fff 100%);
-        }
-
-        .data-card.active-yellow {
-            border-left: 5px solid #FFB90F;
-            background: linear-gradient(135deg, rgba(255, 177, 15, 0.03) 0%, #fff 100%);
-        }
-
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 0;
-            border-bottom: 1px solid #e8e8e8;
-        }
-
-        .metric:last-child {
-            border-bottom: none;
+        .metric-item {
+            text-align: center;
         }
 
         .metric-label {
-            color: #666;
-            font-size: 15px;
+            font-size: 10px;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             font-weight: 600;
-            letter-spacing: 0.3px;
+            margin-bottom: 3px;
         }
 
         .metric-value {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 22px;
+            line-height: 1;
+            font-weight: 800;
             font-family: 'Monaco', 'Courier New', monospace;
             letter-spacing: 1px;
         }
 
-        .metric-value.reddy-value {
-            color: #8B0000;
-        }
-
-        .metric-value.yellow-value {
-            color: #FF8C00;
-        }
-
         .status-box {
-            background: linear-gradient(135deg, #f0f4f8 0%, #fff 100%);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #e0e7ff;
-            margin-top: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e8e8e8;
+            margin-bottom: 20px;
         }
 
         .status-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            color: #666;
+            color: #888;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .status-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 20px;
         }
 
         .status-time {
-            font-size: 13px;
-            color: #333;
+            font-size: 14px;
+            color: #1a1a2e;
             font-weight: 600;
-            margin-bottom: 6px;
         }
 
         .status-ago {
             font-size: 12px;
             color: #999;
+            font-weight: 500;
         }
 
         .error {
@@ -201,101 +150,113 @@
             border: 1px solid #fcc;
             color: #c33;
             padding: 16px;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-top: 20px;
             font-size: 13px;
             font-weight: 500;
         }
 
-        .loading {
-            text-align: center;
-            color: #999;
-            font-size: 14px;
-            padding: 40px;
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 25px 25px;
+            }
+
+            .pill-data.reddy {
+                left: 8%;
+            }
+
+            .pill-data.yellow {
+                right: 8%;
+            }
+
+            .metric-value {
+                font-size: 18px;
+            }
+
+            .metric-label {
+                font-size: 9px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🍺</div>
-            <h1>Fermenter Dashboard</h1>
+            <h1>🍺 Fermenter Dashboard</h1>
             <p class="subtitle">Real-time RAPT Telemetry</p>
         </div>
 
-        <div class="pill-selector">
-            <button id="tab-reddy" class="tab-btn active" onclick="switchPill('reddy')">
-                <span class="pill-indicator reddy"></span>reddymc redface
-            </button>
-            <button id="tab-yellow" class="tab-btn" onclick="switchPill('yellow')">
-                <span class="pill-indicator yellow"></span>yellow mc yellow face
-            </button>
-        </div>
+        <div class="pills-container">
+            <img src="red and yellow.webp" alt="RAPT Pills" class="pills-image" id="pills-image">
 
-        <div id="data-card" class="data-card active-reddy">
-            <div class="metric">
-                <span class="metric-label">🌡️ Temperature</span>
-                <span class="metric-value reddy-value" id="temperature">--</span>
+            <div class="pill-data reddy" id="reddy-data">
+                <div class="metric-item">
+                    <div class="metric-label">Temp</div>
+                    <div class="metric-value" id="temp-reddy">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Gravity</div>
+                    <div class="metric-value" id="gravity-reddy">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Battery</div>
+                    <div class="metric-value" id="battery-reddy">--</div>
+                </div>
             </div>
 
-            <div class="metric">
-                <span class="metric-label">📊 Gravity</span>
-                <span class="metric-value reddy-value" id="gravity">--</span>
-            </div>
-
-            <div class="metric">
-                <span class="metric-label">🔋 Battery</span>
-                <span class="metric-value reddy-value" id="battery">--</span>
+            <div class="pill-data yellow" id="yellow-data">
+                <div class="metric-item">
+                    <div class="metric-label">Temp</div>
+                    <div class="metric-value" id="temp-yellow">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Gravity</div>
+                    <div class="metric-value" id="gravity-yellow">--</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Battery</div>
+                    <div class="metric-value" id="battery-yellow">--</div>
+                </div>
             </div>
         </div>
 
         <div class="status-box">
             <div class="status-label">Last Updated</div>
-            <div class="status-time" id="lastUpdated-time">--</div>
-            <div class="status-ago" id="lastUpdated-ago">--</div>
+            <div class="status-content">
+                <div class="status-time" id="lastUpdated-time">--</div>
+                <div class="status-ago" id="lastUpdated-ago">--</div>
+            </div>
         </div>
 
         <div id="error" class="error" style="display: none;"></div>
     </div>
 
     <script>
-        let currentPill = 'reddy';
         let allData = null;
-
-        function switchPill(pill) {
-            currentPill = pill;
-
-            document.getElementById('tab-reddy').classList.toggle('active', pill === 'reddy');
-            document.getElementById('tab-yellow').classList.toggle('active', pill === 'yellow');
-
-            const dataCard = document.getElementById('data-card');
-            dataCard.classList.remove('active-reddy', 'active-yellow');
-            dataCard.classList.add(pill === 'reddy' ? 'active-reddy' : 'active-yellow');
-
-            updateDisplay();
-        }
 
         function updateDisplay() {
             if (!allData || !allData.pills) return;
 
-            const pillIndex = currentPill === 'reddy' ? 0 : 1;
-            const pill = allData.pills[pillIndex];
-            const colorClass = currentPill === 'reddy' ? 'reddy-value' : 'yellow-value';
+            const reddy = allData.pills[0];
+            const yellow = allData.pills[1];
 
-            if (!pill) return;
+            // Update reddy pill
+            document.getElementById('temp-reddy').textContent =
+                reddy.temperature !== null ? `${reddy.temperature}°` : '--';
+            document.getElementById('gravity-reddy').textContent =
+                reddy.gravity !== null ? reddy.gravity.toFixed(1) : '--';
+            document.getElementById('battery-reddy').textContent =
+                reddy.battery !== null ? `${reddy.battery.toFixed(0)}%` : '--';
 
-            document.getElementById('temperature').textContent =
-                pill.temperature !== null ? `${pill.temperature}°C` : '--';
-            document.getElementById('temperature').className = `metric-value ${colorClass}`;
+            // Update yellow pill
+            document.getElementById('temp-yellow').textContent =
+                yellow.temperature !== null ? `${yellow.temperature}°` : '--';
+            document.getElementById('gravity-yellow').textContent =
+                yellow.gravity !== null ? yellow.gravity.toFixed(1) : '--';
+            document.getElementById('battery-yellow').textContent =
+                yellow.battery !== null ? `${yellow.battery.toFixed(0)}%` : '--';
 
-            document.getElementById('gravity').textContent =
-                pill.gravity !== null ? pill.gravity.toFixed(4) : '--';
-            document.getElementById('gravity').className = `metric-value ${colorClass}`;
-
-            document.getElementById('battery').textContent =
-                pill.battery !== null ? `${pill.battery.toFixed(1)}%` : '--';
-            document.getElementById('battery').className = `metric-value ${colorClass}`;
-
+            // Update timestamp
             const lastUpdate = new Date(allData.lastUpdated);
             const now = new Date();
             const diffMinutes = Math.floor((now - lastUpdate) / 60000);
@@ -314,13 +275,13 @@
             if (diffMinutes < 1) {
                 agoStr = 'Just now';
             } else if (diffMinutes < 60) {
-                agoStr = `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+                agoStr = `${diffMinutes}m ago`;
             } else if (diffMinutes < 1440) {
                 const hours = Math.floor(diffMinutes / 60);
-                agoStr = `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+                agoStr = `${hours}h ago`;
             } else {
                 const days = Math.floor(diffMinutes / 1440);
-                agoStr = `${days} day${days !== 1 ? 's' : ''} ago`;
+                agoStr = `${days}d ago`;
             }
 
             document.getElementById('lastUpdated-time').textContent = perthTimeStr;
