@@ -75,18 +75,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 30px;
-            margin-bottom: 25px;
+            gap: 20px;
+            margin-bottom: 40px;
             flex-wrap: wrap;
         }
 
         .rapt-logo {
-            height: 60px;
+            height: 80px;
             width: auto;
-            max-width: 300px;
+            max-width: 400px;
             opacity: 1;
-            filter: brightness(1.15) contrast(1.1);
-            display: block;
+            filter: invert(1);
         }
 
         .brewer-name {
@@ -388,10 +387,9 @@
     <div class="container">
         <div class="header">
             <div class="header-top">
-                <img src="rapt.png" alt="RAPT" class="rapt-logo" onerror="this.style.display='none'">
+                <img src="rapt.png" alt="RAPT" class="rapt-logo">
                 <div class="brewer-name">Pete's Brewing</div>
             </div>
-            <div class="logo">🍺 RAPT Monitoring</div>
             <h1>Fermenter Dashboard</h1>
             <p class="subtitle">Real-time telemetry and analytics</p>
         </div>
