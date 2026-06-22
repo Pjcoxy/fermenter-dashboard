@@ -42,10 +42,8 @@ Your RAPT API credentials must be stored as GitHub Secrets (not in the code).
 
 1. Go to your repo → **Settings** → **Secrets and variables** → **Actions**
 2. Create two new secrets:
-   - **RAPT_USERNAME**: `pjcoxy@gmail.com`
-   - **RAPT_API_SECRET**: `P63wxmLlERm8`
-
-3. ⚠️ **After setup, regenerate your RAPT API key** since it was exposed
+   - **RAPT_USERNAME**: Your RAPT account email
+   - **RAPT_API_SECRET**: Your RAPT API key
 
 ### 3. Enable GitHub Pages
 
@@ -61,7 +59,7 @@ Your dashboard will be available at: `https://pjcoxy.github.io/fermenter-dashboa
 1. Go to **Actions** tab
 2. You should see "Fetch RAPT Data" workflow
 3. Click **Run workflow** to test it manually
-4. The workflow runs automatically every 15 minutes
+4. The workflow runs automatically on a schedule (edit cron in `.github/workflows/fetch-data.yml`)
 
 ## API Integration Notes
 
@@ -76,7 +74,7 @@ Check your RAPT API documentation and update `.github/workflows/fetch-data.yml` 
 ## Dashboard Updates
 
 - **Client-side refresh**: Every 30 seconds (reads data.json)
-- **Server-side update**: Every 15 minutes (via GitHub Actions)
+- **Server-side update**: On schedule (via GitHub Actions, configurable in workflow)
 - **Manual refresh**: Use "Run workflow" in Actions tab
 
 ## Troubleshooting
