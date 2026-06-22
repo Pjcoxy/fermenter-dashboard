@@ -194,19 +194,33 @@
             const now = new Date();
             const diffMinutes = Math.floor((now - lastUpdate) / 60000);
 
-            let timeStr = '';
+            // Convert to Perth time (UTC+8)
+            const perthTime = new Date(lastUpdate.getTime() + (8 * 60 * 60 * 1000));
+            const timeOptions = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            const perthTimeStr = perthTime.toLocaleString('en-AU', timeOptions) + ' AWST';
+
+            let agoStr = '';
             if (diffMinutes < 1) {
-                timeStr = 'Just now';
+                agoStr = 'Just now';
             } else if (diffMinutes < 60) {
-                timeStr = `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+                agoStr = `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
             } else if (diffMinutes < 1440) {
                 const hours = Math.floor(diffMinutes / 60);
-                timeStr = `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+                agoStr = `${hours} hour${hours !== 1 ? 's' : ''} ago`;
             } else {
-                timeStr = lastUpdate.toLocaleString();
+                const days = Math.floor(diffMinutes / 1440);
+                agoStr = `${days} day${days !== 1 ? 's' : ''} ago`;
             }
 
-            document.getElementById('lastUpdated').textContent = timeStr;
+            document.getElementById('lastUpdated').innerHTML = `<div>${perthTimeStr}</div><div style="font-size: 12px; color: #999; margin-top: 5px;">${agoStr}</div>`;
             document.getElementById('error').style.display = 'none';
         }
 
