@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fermenter Temperature Dashboard</title>
+    <title>Fermenter Dashboard | RAPT</title>
     <style>
         * {
             margin: 0;
@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,32 +22,123 @@
         }
 
         .container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            padding: 50px;
+            max-width: 700px;
             width: 100%;
         }
 
+        .header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
         h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+            color: #1a1a2e;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
             color: #666;
-            margin-bottom: 40px;
             font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .pill-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 40px;
+            border-radius: 12px;
+            background: #f8f8f8;
+            padding: 6px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: #666;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .tab-btn#tab-reddy.active {
+            background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
+            box-shadow: 0 8px 20px rgba(139, 0, 0, 0.3);
+        }
+
+        .tab-btn#tab-yellow.active {
+            background: linear-gradient(135deg, #FFB90F 0%, #FFA500 100%);
+            box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
+            color: #333;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .pill-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .pill-indicator.reddy {
+            background: #8B0000;
+        }
+
+        .pill-indicator.yellow {
+            background: #FFB90F;
+        }
+
+        .data-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 25px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .data-card.active-reddy {
+            border-left: 5px solid #8B0000;
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.03) 0%, #fff 100%);
+        }
+
+        .data-card.active-yellow {
+            border-left: 5px solid #FFB90F;
+            background: linear-gradient(135deg, rgba(255, 177, 15, 0.03) 0%, #fff 100%);
         }
 
         .metric {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #eee;
+            padding: 18px 0;
+            border-bottom: 1px solid #e8e8e8;
         }
 
         .metric:last-child {
@@ -56,103 +147,112 @@
 
         .metric-label {
             color: #666;
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .metric-value {
-            color: #333;
-            font-size: 32px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 700;
             font-family: 'Monaco', 'Courier New', monospace;
+            letter-spacing: 1px;
         }
 
-        .status {
-            margin-top: 30px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #666;
+        .metric-value.reddy-value {
+            color: #8B0000;
+        }
+
+        .metric-value.yellow-value {
+            color: #FF8C00;
+        }
+
+        .status-box {
+            background: linear-gradient(135deg, #f0f4f8 0%, #fff 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e7ff;
+            margin-top: 25px;
         }
 
         .status-label {
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .status-time {
+            font-size: 13px;
             color: #333;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .status-ago {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 13px;
+            font-weight: 500;
         }
 
         .loading {
             text-align: center;
             color: #999;
             font-size: 14px;
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 15px 20px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-btn:hover {
-            color: #333;
-            background: #f9f9f9;
-        }
-
-        .tab-btn.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            padding: 40px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🍺 Fermenter Dashboard</h1>
-        <p class="subtitle">Real-time temperature and gravity monitoring</p>
+        <div class="header">
+            <div class="logo">🍺</div>
+            <h1>Fermenter Dashboard</h1>
+            <p class="subtitle">Real-time RAPT Telemetry</p>
+        </div>
 
-        <div style="margin-bottom: 30px;">
-            <div style="display: flex; gap: 10px; border-bottom: 2px solid #eee;">
-                <button id="tab-reddy" class="tab-btn active" onclick="switchPill('reddy')">
-                    reddymc redface
-                </button>
-                <button id="tab-yellow" class="tab-btn" onclick="switchPill('yellow')">
-                    yellow mc yellow face
-                </button>
+        <div class="pill-selector">
+            <button id="tab-reddy" class="tab-btn active" onclick="switchPill('reddy')">
+                <span class="pill-indicator reddy"></span>reddymc redface
+            </button>
+            <button id="tab-yellow" class="tab-btn" onclick="switchPill('yellow')">
+                <span class="pill-indicator yellow"></span>yellow mc yellow face
+            </button>
+        </div>
+
+        <div id="data-card" class="data-card active-reddy">
+            <div class="metric">
+                <span class="metric-label">🌡️ Temperature</span>
+                <span class="metric-value reddy-value" id="temperature">--</span>
+            </div>
+
+            <div class="metric">
+                <span class="metric-label">📊 Gravity</span>
+                <span class="metric-value reddy-value" id="gravity">--</span>
+            </div>
+
+            <div class="metric">
+                <span class="metric-label">🔋 Battery</span>
+                <span class="metric-value reddy-value" id="battery">--</span>
             </div>
         </div>
 
-        <div class="metric">
-            <span class="metric-label">Temperature</span>
-            <span class="metric-value" id="temperature">--</span>
-        </div>
-
-        <div class="metric">
-            <span class="metric-label">Gravity</span>
-            <span class="metric-value" id="gravity">--</span>
-        </div>
-
-        <div class="metric">
-            <span class="metric-label">Battery</span>
-            <span class="metric-value" id="battery">--</span>
-        </div>
-
-        <div class="status">
+        <div class="status-box">
             <div class="status-label">Last Updated</div>
-            <div id="lastUpdated">Loading...</div>
+            <div class="status-time" id="lastUpdated-time">--</div>
+            <div class="status-ago" id="lastUpdated-ago">--</div>
         </div>
 
         <div id="error" class="error" style="display: none;"></div>
@@ -165,11 +265,13 @@
         function switchPill(pill) {
             currentPill = pill;
 
-            // Update tab buttons
             document.getElementById('tab-reddy').classList.toggle('active', pill === 'reddy');
             document.getElementById('tab-yellow').classList.toggle('active', pill === 'yellow');
 
-            // Update display
+            const dataCard = document.getElementById('data-card');
+            dataCard.classList.remove('active-reddy', 'active-yellow');
+            dataCard.classList.add(pill === 'reddy' ? 'active-reddy' : 'active-yellow');
+
             updateDisplay();
         }
 
@@ -178,23 +280,26 @@
 
             const pillIndex = currentPill === 'reddy' ? 0 : 1;
             const pill = allData.pills[pillIndex];
+            const colorClass = currentPill === 'reddy' ? 'reddy-value' : 'yellow-value';
 
             if (!pill) return;
 
-            // Update metrics
             document.getElementById('temperature').textContent =
                 pill.temperature !== null ? `${pill.temperature}°C` : '--';
+            document.getElementById('temperature').className = `metric-value ${colorClass}`;
+
             document.getElementById('gravity').textContent =
                 pill.gravity !== null ? pill.gravity.toFixed(4) : '--';
+            document.getElementById('gravity').className = `metric-value ${colorClass}`;
+
             document.getElementById('battery').textContent =
                 pill.battery !== null ? `${pill.battery.toFixed(1)}%` : '--';
+            document.getElementById('battery').className = `metric-value ${colorClass}`;
 
-            // Format last updated time
             const lastUpdate = new Date(allData.lastUpdated);
             const now = new Date();
             const diffMinutes = Math.floor((now - lastUpdate) / 60000);
 
-            // Format Perth time (Australia/Perth timezone)
             const formatter = new Intl.DateTimeFormat('en-AU', {
                 timeZone: 'Australia/Perth',
                 day: '2-digit',
@@ -218,7 +323,8 @@
                 agoStr = `${days} day${days !== 1 ? 's' : ''} ago`;
             }
 
-            document.getElementById('lastUpdated').innerHTML = `<div>${perthTimeStr}</div><div style="font-size: 12px; color: #999; margin-top: 5px;">${agoStr}</div>`;
+            document.getElementById('lastUpdated-time').textContent = perthTimeStr;
+            document.getElementById('lastUpdated-ago').textContent = agoStr;
             document.getElementById('error').style.display = 'none';
         }
 
@@ -237,13 +343,8 @@
             }
         }
 
-        // Load data on page load
         loadData();
-
-        // Refresh data every 30 seconds
         setInterval(loadData, 30000);
-
-        // Update the display every second to keep timer current
         setInterval(updateDisplay, 1000);
     </script>
 </body>
