@@ -3,17 +3,17 @@
     {
       "name": "reddymc redface",
       "id": "b593f1b8-8c3d-4f5e-a798-6e7a3569a85b",
-      "temperature": 18.5625,
-      "gravity": 1016.99,
-      "battery": 69.2857
+      "temperature": 18.5,
+      "gravity": 1016.6,
+      "battery": 69.1965
     },
     {
       "name": "yellow mc yellow face",
       "id": "176cc4c3-9e13-4106-b1c0-7455b4f9ca7c",
-      "temperature": 18,
-      "gravity": 1027.22,
-      "battery": 77.7798
+      "temperature": 17.9375,
+      "gravity": 1027.27,
+      "battery": 77.8967
     }
   ],
-  "lastUpdated": "2026-06-22T19:50:04.215734Z"
+  "lastUpdated": "2026-06-22T20:05:11.399953Z"
 }
