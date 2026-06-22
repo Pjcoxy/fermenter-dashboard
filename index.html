@@ -25,7 +25,7 @@
             background: #fff;
             border-radius: 24px;
             box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
-            padding: 60px 40px 40px;
+            padding: 50px 40px 40px;
             max-width: 900px;
             width: 100%;
         }
@@ -50,19 +50,29 @@
             font-weight: 600;
         }
 
-        .pills-container {
-            position: relative;
-            margin-bottom: 50px;
+        .pills-wrapper {
             display: flex;
             justify-content: center;
-            gap: 0;
+            gap: 40px;
+            margin-bottom: 50px;
+            align-items: center;
         }
 
-        .pills-image {
-            max-width: 100%;
-            height: auto;
-            display: block;
+        .pill-card {
+            position: relative;
+            width: 140px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pill-image {
             width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
         }
 
         .pill-data {
@@ -70,22 +80,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            font-weight: 700;
-        }
-
-        .pill-data.reddy {
-            left: 12%;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #fff;
-        }
-
-        .pill-data.yellow {
-            right: 12%;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #333;
+            gap: 8px;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
         }
 
         .metric-item {
@@ -93,20 +91,32 @@
         }
 
         .metric-label {
-            font-size: 10px;
-            opacity: 0.85;
+            font-size: 9px;
+            opacity: 0.9;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 3px;
+            font-weight: 700;
+            margin-bottom: 2px;
         }
 
         .metric-value {
-            font-size: 22px;
+            font-size: 16px;
             line-height: 1;
             font-weight: 800;
             font-family: 'Monaco', 'Courier New', monospace;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+        }
+
+        .pill-data.reddy .metric-label,
+        .pill-data.reddy .metric-value {
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .pill-data.yellow .metric-label,
+        .pill-data.yellow .metric-value {
+            color: #333;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
         }
 
         .status-box {
@@ -158,23 +168,20 @@
 
         @media (max-width: 600px) {
             .container {
-                padding: 40px 25px 25px;
+                padding: 30px 20px;
             }
 
-            .pill-data.reddy {
-                left: 8%;
+            .pills-wrapper {
+                gap: 25px;
             }
 
-            .pill-data.yellow {
-                right: 8%;
+            .pill-card {
+                width: 120px;
+                height: 170px;
             }
 
             .metric-value {
-                font-size: 18px;
-            }
-
-            .metric-label {
-                font-size: 9px;
+                font-size: 14px;
             }
         }
     </style>
@@ -186,36 +193,42 @@
             <p class="subtitle">Real-time RAPT Telemetry</p>
         </div>
 
-        <div class="pills-container">
-            <img src="red and yellow.webp" alt="RAPT Pills" class="pills-image" id="pills-image">
-
-            <div class="pill-data reddy" id="reddy-data">
-                <div class="metric-item">
-                    <div class="metric-label">Temp</div>
-                    <div class="metric-value" id="temp-reddy">--</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">Gravity</div>
-                    <div class="metric-value" id="gravity-reddy">--</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">Battery</div>
-                    <div class="metric-value" id="battery-reddy">--</div>
+        <div class="pills-wrapper">
+            <!-- Red Pill -->
+            <div class="pill-card">
+                <img src="red and yellow.webp" alt="Red Pill" class="pill-image" style="object-position: left;">
+                <div class="pill-data reddy">
+                    <div class="metric-item">
+                        <div class="metric-label">T°</div>
+                        <div class="metric-value" id="temp-reddy">--</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">SG</div>
+                        <div class="metric-value" id="gravity-reddy">--</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">bat</div>
+                        <div class="metric-value" id="battery-reddy">--</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="pill-data yellow" id="yellow-data">
-                <div class="metric-item">
-                    <div class="metric-label">Temp</div>
-                    <div class="metric-value" id="temp-yellow">--</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">Gravity</div>
-                    <div class="metric-value" id="gravity-yellow">--</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">Battery</div>
-                    <div class="metric-value" id="battery-yellow">--</div>
+            <!-- Yellow Pill -->
+            <div class="pill-card">
+                <img src="red and yellow.webp" alt="Yellow Pill" class="pill-image" style="object-position: right;">
+                <div class="pill-data yellow">
+                    <div class="metric-item">
+                        <div class="metric-label">T°</div>
+                        <div class="metric-value" id="temp-yellow">--</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">SG</div>
+                        <div class="metric-value" id="gravity-yellow">--</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">bat</div>
+                        <div class="metric-value" id="battery-yellow">--</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -240,23 +253,20 @@
             const reddy = allData.pills[0];
             const yellow = allData.pills[1];
 
-            // Update reddy pill
             document.getElementById('temp-reddy').textContent =
-                reddy.temperature !== null ? `${reddy.temperature}°` : '--';
+                reddy.temperature !== null ? reddy.temperature.toFixed(1) : '--';
             document.getElementById('gravity-reddy').textContent =
-                reddy.gravity !== null ? reddy.gravity.toFixed(1) : '--';
+                reddy.gravity !== null ? reddy.gravity.toFixed(0) : '--';
             document.getElementById('battery-reddy').textContent =
-                reddy.battery !== null ? `${reddy.battery.toFixed(0)}%` : '--';
+                reddy.battery !== null ? reddy.battery.toFixed(0) : '--';
 
-            // Update yellow pill
             document.getElementById('temp-yellow').textContent =
-                yellow.temperature !== null ? `${yellow.temperature}°` : '--';
+                yellow.temperature !== null ? yellow.temperature.toFixed(1) : '--';
             document.getElementById('gravity-yellow').textContent =
-                yellow.gravity !== null ? yellow.gravity.toFixed(1) : '--';
+                yellow.gravity !== null ? yellow.gravity.toFixed(0) : '--';
             document.getElementById('battery-yellow').textContent =
-                yellow.battery !== null ? `${yellow.battery.toFixed(0)}%` : '--';
+                yellow.battery !== null ? yellow.battery.toFixed(0) : '--';
 
-            // Update timestamp
             const lastUpdate = new Date(allData.lastUpdated);
             const now = new Date();
             const diffMinutes = Math.floor((now - lastUpdate) / 60000);
