@@ -717,6 +717,9 @@
             yellow: { temps: [], gravities: [], times: [] }
         };
 
+        // Allowed email addresses (edit to add more)
+        const ALLOWED_EMAILS = ['pjcoxy@gmail.com'];
+
         // Google One Tap Authentication
         function handleCredentialResponse(response) {
             // Decode JWT token
@@ -727,6 +730,12 @@
             }).join(''));
 
             const userData = JSON.parse(jsonPayload);
+
+            // Check if email is allowed
+            if (!ALLOWED_EMAILS.includes(userData.email)) {
+                showError(`Access denied. ${userData.email} is not authorized to view this dashboard.`);
+                return;
+            }
 
             // Store auth state
             localStorage.setItem('auth_token', response.credential);
@@ -741,6 +750,21 @@
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('dashboard-container').classList.add('authenticated');
             document.getElementById('user-email').textContent = userData.email;
+        }
+
+        function showError(message) {
+            const loginBox = document.querySelector('.login-box');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = message;
+            loginBox.appendChild(errorDiv);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+                google.accounts.id.renderButton(document.getElementById('g_id_signin'), { theme: 'outline' });
+            }, 5000);
         }
 
         function handleSignOut() {
