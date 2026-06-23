@@ -10,6 +10,10 @@ A real-time dashboard that displays fermenter temperature and gravity readings f
 - 🔄 Auto-refreshes every 30 seconds (client-side)
 - 📱 Responsive mobile-friendly design
 - 🚀 Deployed via GitHub Pages
+- 🔐 Google One Tap Sign-In authentication
+- 📧 Email-based access control (whitelist authorized users)
+- 📈 Historical trend charts (temperature & gravity)
+- 🎯 Compact single-screen layout
 
 ## File Structure
 
@@ -45,14 +49,29 @@ Your RAPT API credentials must be stored as GitHub Secrets (not in the code).
    - **RAPT_USERNAME**: Your RAPT account email
    - **RAPT_API_SECRET**: Your RAPT API key
 
-### 3. Enable GitHub Pages
+### 3. Set Up Google One Tap Authentication
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project: `Fermenter Dashboard`
+3. Go to **APIs & Services** → **Credentials**
+4. Click **Create Credentials** → **OAuth 2.0 Client ID**
+5. Application type: **Web application**
+6. Add authorized origins: `https://yourusername.github.io`
+7. Copy your **Client ID** (looks like: `123456789-abc...apps.googleusercontent.com`)
+8. Open `index.html` and find line with `data-client_id="YOUR_CLIENT_ID_HERE"`
+9. Replace with your actual Client ID
+10. In Google Cloud Console, go to **Settings** → **OAuth consent screen**
+11. Add authorized domain: `yourusername.github.io`
+12. To restrict access to specific emails, edit `index.html` and update the `ALLOWED_EMAILS` array
+
+### 4. Enable GitHub Pages
 
 1. Go to repo → **Settings** → **Pages**
 2. Set **Source** to: `Deploy from a branch`
 3. Set **Branch** to: `main` / `/ (root)`
 4. Click **Save**
 
-Your dashboard will be available at: `https://pjcoxy.github.io/fermenter-dashboard/`
+Your dashboard will be available at: `https://yourusername.github.io/fermenter-dashboard/`
 
 ### 4. Verify GitHub Actions Workflow
 
@@ -61,7 +80,7 @@ Your dashboard will be available at: `https://pjcoxy.github.io/fermenter-dashboa
 3. Click **Run workflow** to test it manually
 4. For automatic scheduled runs, use an external cron service (see below)
 
-### 5. Set Up External Cron Service (Required for Automation)
+### 6. Set Up External Cron Service (Required for Automation)
 
 GitHub's built-in scheduler is unreliable. Use **cron-job.org** (free) to trigger the workflow:
 
@@ -91,11 +110,28 @@ The workflow calls the RAPT API endpoint. You may need to adjust:
 
 Check your RAPT API documentation and update `.github/workflows/fetch-data.yml` accordingly.
 
+## Authentication & Access Control
+
+### Email Whitelist
+By default, only `pjcoxy@gmail.com` can access the dashboard. To add or change authorized emails:
+
+1. Open `index.html`
+2. Find the line: `const ALLOWED_EMAILS = ['pjcoxy@gmail.com'];`
+3. Add more emails: `const ALLOWED_EMAILS = ['pjcoxy@gmail.com', 'other@gmail.com'];`
+4. Commit and push changes
+
+### How It Works
+- Uses Google One Tap Sign-In (frictionless authentication)
+- Validates user's email against the whitelist
+- Stores auth token in browser localStorage
+- Token expires and user must sign in again after browser restart (sessionStorage behavior can be configured)
+
 ## Dashboard Updates
 
 - **Client-side refresh**: Every 30 seconds (reads data.json)
-- **Server-side update**: On schedule (via GitHub Actions, configurable in workflow)
+- **Server-side update**: Every 15 minutes (via GitHub Actions workflow)
 - **Manual refresh**: Use "Run workflow" in Actions tab
+- **Historical data**: Charts display last ~20 data points
 
 ## Troubleshooting
 

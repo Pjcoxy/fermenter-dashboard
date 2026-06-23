@@ -7,20 +7,25 @@
 1. System Overview
 2. How It Works
 3. Component Architecture
-4. Troubleshooting Guide
-5. Maintenance & Operations
+4. Authentication & Access Control
+5. Troubleshooting Guide
+6. Maintenance & Operations
 
 ---
 
 ## 1. System Overview
 
-The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation vessels. It displays live temperature, gravity, and battery data from RAPT Pill sensors and updates automatically every 15 minutes.
+The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation vessels. It displays live temperature, gravity, and battery data from RAPT Pill sensors with automatic updates every 15 minutes.
 
 **Key Features:**
 - Real-time telemetry monitoring
 - Dual-fermenter support (reddy and yellow pills)
-- Automatic data updates via Google Apps Script
+- Automatic data updates via GitHub Actions (every 15 minutes)
+- Google One Tap Sign-In authentication
+- Email-based access control (whitelist authorized users)
+- Historical trend charts (temperature & gravity)
 - Professional, responsive web interface
+- Compact single-screen layout
 - GitHub Pages hosting
 - Zero maintenance deployment
 
@@ -180,9 +185,62 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
 
 ---
 
-## 4. Troubleshooting Guide
+## 4. Authentication & Access Control
 
-### Issue 1: Dashboard Shows "--" for All Values
+### 4.1 Google One Tap Sign-In
+- **Method:** Google One Tap (OpenID Connect)
+- **Flow:** Client-side only (no backend redirects needed)
+- **Authentication:** JWT token from Google (cryptographically signed)
+- **Storage:** Browser localStorage (persists until manual sign out)
+- **Token Expiration:** Expires with browser session or manual sign out
+
+### 4.2 Email-Based Access Control
+- **Whitelist Location:** `index.html` line ~717, `const ALLOWED_EMAILS = [...]`
+- **Default Authorized Email:** `pjcoxy@gmail.com`
+- **Validation:** Checked against Google's signed JWT payload
+- **Access Denied:** Shows error message if email not in whitelist
+- **To Add More Emails:** Edit `ALLOWED_EMAILS` array and commit
+
+### 4.3 Security Considerations
+- ✅ Google authenticates user (you trust Google's identity verification)
+- ✅ JWT is signed by Google (cannot be forged)
+- ✅ Email whitelist prevents unauthorized access
+- ⚠️ localStorage is readable by JavaScript (vulnerable to XSS)
+- ⚠️ Physical access to machine allows token theft
+- ✅ GitHub Pages is HTTPS-only (encrypted in transit)
+
+---
+
+## 5. Troubleshooting Guide
+
+### Issue 1: "Access Denied" Error on Login
+
+**Symptoms:**
+- See message: "Access denied. [email] is not authorized to view this dashboard."
+- Attempting to sign in with a different Gmail account
+
+**Possible Causes:**
+1. Email address not in whitelist
+2. OAuth consent screen domain not authorized
+
+**Solutions:**
+1. **Check if email is authorized:**
+   - Open `index.html` in GitHub
+   - Find line: `const ALLOWED_EMAILS = [......]`
+   - If your email is not listed, add it and commit
+
+2. **Verify OAuth consent screen:**
+   - Go to Google Cloud Console → Your Project
+   - Go to **Settings** → **OAuth consent screen**
+   - Check "Authorized domains" includes your domain (e.g., `pjcoxy.github.io`)
+   - If missing, add it
+
+3. **Clear browser cache and try again:**
+   - Press Ctrl+Shift+Delete to open Clear Browsing Data
+   - Clear all data
+   - Refresh dashboard and sign in again
+
+### Issue 2: Dashboard Shows "--" for All Values
 
 **Symptoms:**
 - Metrics display "--" instead of numbers
@@ -214,7 +272,7 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
    - Look for red error messages
    - Check if `data.json` returns 404 or 403
 
-### Issue 2: Workflow Fails to Run
+### Issue 3: Workflow Fails to Run
 
 **Symptoms:**
 - Last updated time hasn't changed in hours
@@ -255,7 +313,7 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
    - Check API rate limits
    - Confirm pill IDs are correct
 
-### Issue 3: RAPT Logo Not Displaying
+### Issue 4: RAPT Logo Not Displaying
 
 **Symptoms:**
 - Logo shows as broken image icon
@@ -287,7 +345,7 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
    - If missing, upload `rapt.png` to repo
    - Ensure it's committed (not just staged)
 
-### Issue 4: Data Updates Inconsistently
+### Issue 5: Data Updates Inconsistently
 
 **Symptoms:**
 - Some updates work, others don't
@@ -321,7 +379,7 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
    - Press Ctrl+F5 to do full cache bust
    - Check DevTools Network tab to confirm fresh fetch
 
-### Issue 5: Battery or Temperature Shows Wrong Values
+### Issue 6: Battery or Temperature Shows Wrong Values
 
 **Symptoms:**
 - Battery percentage >100% or <0%
@@ -355,7 +413,7 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
    - Contact RAPT support or replace batteries
    - Workflow may be receiving incorrect sensor readings
 
-### Issue 6: Last Updated Shows Wrong Timezone
+### Issue 7: Last Updated Shows Wrong Timezone
 
 **Symptoms:**
 - Timestamp shows UTC instead of Perth time
@@ -383,32 +441,32 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
 
 ---
 
-## 5. Maintenance & Operations
+## 6. Maintenance & Operations
 
-### 5.1 Regular Checks
+### 6.1 Regular Checks
 - **Weekly:** Verify dashboard displays current data
 - **Monthly:** Check GitHub Actions workflow success rate
 - **Quarterly:** Review and rotate GitHub PAT if needed
 
-### 5.2 Monitoring
+### 6.2 Monitoring
 - Check "Last Updated" time is current
 - Verify battery levels are stable
 - Monitor temperature/gravity trends
 - Watch for any error messages
 
-### 5.3 Updating RAPT Credentials
+### 6.3 Updating RAPT Credentials
 1. Go to RAPT account settings
 2. Generate new API key
 3. Update GitHub secret `RAPT_API_SECRET`
 4. Test with manual workflow run
 
-### 5.4 Changing Update Frequency
+### 6.4 Changing Update Frequency
 - Edit `.github/workflows/fetch-data.yml`
 - Find cron line: `cron: '*/15 * * * *'`
 - Change 15 to desired minutes
 - Commit and push changes
 
-### 5.5 Adding New Pill
+### 6.5 Adding New Pill
 1. Get pill ID from RAPT app
 2. Edit workflow: `.github/workflows/fetch-data.yml`
 3. Update Python script to extract new pill ID
