@@ -6,6 +6,7 @@
     <title>RAPT Fermenter Monitor</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             margin: 0;
@@ -26,6 +27,89 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        #login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-box {
+            background: linear-gradient(135deg, rgba(30, 50, 90, 0.8) 0%, rgba(15, 25, 50, 0.9) 100%);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-box h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6496ff 0%, #a0d8ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-box p {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        #g_id_onload {
+            display: flex;
+            justify-content: center;
+        }
+
+        #dashboard-container {
+            display: none;
+        }
+
+        #dashboard-container.authenticated {
+            display: block;
+        }
+
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(20, 40, 70, 0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(100, 150, 255, 0.15);
+        }
+
+        .user-info {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #e0e0e0;
+        }
+
+        .sign-out-btn {
+            padding: 8px 16px;
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .sign-out-btn:hover {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 107, 107, 0.5);
         }
 
         /* Header */
@@ -495,7 +579,27 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="login-container">
+        <div class="login-box">
+            <h1>Fermenter Dashboard</h1>
+            <p>Sign in with your Google account to view live fermenter data</p>
+            <div id="g_id_onload"
+                 data-client_id="YOUR_CLIENT_ID_HERE"
+                 data-callback="handleCredentialResponse">
+            </div>
+            <div id="g_id_signin" data-type="standard"></div>
+        </div>
+    </div>
+
+    <div id="dashboard-container">
+        <div class="auth-header">
+            <div class="user-info">
+                Signed in as <span class="user-name" id="user-email">--</span>
+            </div>
+            <button class="sign-out-btn" onclick="handleSignOut()">Sign Out</button>
+        </div>
+
+        <div class="container">
         <div class="header">
             <div class="header-logo-section">
                 <img src="https://raw.githubusercontent.com/Pjcoxy/fermenter-dashboard/main/rapt.png" alt="RAPT" class="rapt-logo">
@@ -612,6 +716,51 @@
             reddy: { temps: [], gravities: [], times: [] },
             yellow: { temps: [], gravities: [], times: [] }
         };
+
+        // Google One Tap Authentication
+        function handleCredentialResponse(response) {
+            // Decode JWT token
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            const userData = JSON.parse(jsonPayload);
+
+            // Store auth state
+            localStorage.setItem('auth_token', response.credential);
+            localStorage.setItem('user_email', userData.email);
+            localStorage.setItem('user_name', userData.name);
+
+            // Show dashboard
+            showDashboard(userData);
+        }
+
+        function showDashboard(userData) {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('dashboard-container').classList.add('authenticated');
+            document.getElementById('user-email').textContent = userData.email;
+        }
+
+        function handleSignOut() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_email');
+            localStorage.removeItem('user_name');
+            location.reload();
+        }
+
+        // Check if already authenticated on page load
+        window.addEventListener('load', function() {
+            const authToken = localStorage.getItem('auth_token');
+            if (authToken) {
+                const userData = {
+                    email: localStorage.getItem('user_email'),
+                    name: localStorage.getItem('user_name')
+                };
+                showDashboard(userData);
+            }
+        });
 
         function getPillStatus(pill, lastUpdateMinutes) {
             if (!pill || pill.temperature === null || pill.gravity === null) {
@@ -797,5 +946,6 @@
         setInterval(loadData, 30000);
         setInterval(updateDisplay, 1000);
     </script>
+    </div>
 </body>
 </html>
