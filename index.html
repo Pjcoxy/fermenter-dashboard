@@ -887,6 +887,28 @@
             }
         }
 
+        function loadHistoryIntoCharts() {
+            if (!allData || !allData.history || allData.history.length === 0) return;
+
+            chartData.reddy = { temps: [], gravities: [], times: [] };
+            chartData.yellow = { temps: [], gravities: [], times: [] };
+
+            allData.history.forEach(entry => {
+                if (entry.reddy && entry.reddy.temperature !== null && entry.reddy.gravity !== null) {
+                    chartData.reddy.temps.push(entry.reddy.temperature);
+                    chartData.reddy.gravities.push(entry.reddy.gravity);
+                    const time = new Date(entry.reddy.time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+                    chartData.reddy.times.push(time);
+                }
+                if (entry.yellow && entry.yellow.temperature !== null && entry.yellow.gravity !== null) {
+                    chartData.yellow.temps.push(entry.yellow.temperature);
+                    chartData.yellow.gravities.push(entry.yellow.gravity);
+                    const time = new Date(entry.yellow.time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+                    chartData.yellow.times.push(time);
+                }
+            });
+        }
+
         function updateDisplay() {
             if (!allData || !allData.pills) return;
 
@@ -941,14 +963,7 @@
             document.getElementById('lastUpdated-ago').textContent = agoStr;
             document.getElementById('error').style.display = 'none';
 
-            const timeStr = lastUpdate.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
-            if (reddy.temperature !== null && reddy.gravity !== null) {
-                addDataPoint('reddy', reddy.temperature, reddy.gravity, timeStr);
-            }
-            if (yellow.temperature !== null && yellow.gravity !== null) {
-                addDataPoint('yellow', yellow.temperature, yellow.gravity, timeStr);
-            }
-
+            loadHistoryIntoCharts();
             updateCharts();
         }
 

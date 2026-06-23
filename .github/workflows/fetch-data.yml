@@ -54,6 +54,39 @@ jobs:
           reddy_pill = next((p for p in pills_data if p['id'] == 'b593f1b8-8c3d-4f5e-a798-6e7a3569a85b'), None)
           yellow_pill = next((p for p in pills_data if p['id'] == '176cc4c3-9e13-4106-b1c0-7455b4f9ca7c'), None)
 
+          timestamp = datetime.utcnow().isoformat() + "Z"
+
+          # Load existing data to preserve history
+          existing_data = {}
+          try:
+              with open('data.json', 'r') as f:
+                  existing_data = json.load(f)
+          except:
+              pass
+
+          # Get or initialize history array
+          history = existing_data.get('history', [])
+
+          # Create new history entry
+          new_entry = {
+              "reddy": {
+                  "temperature": reddy_pill['temperature'] if reddy_pill else None,
+                  "gravity": reddy_pill['gravity'] if reddy_pill else None,
+                  "battery": reddy_pill['battery'] if reddy_pill else None,
+                  "time": timestamp
+              },
+              "yellow": {
+                  "temperature": yellow_pill['temperature'] if yellow_pill else None,
+                  "gravity": yellow_pill['gravity'] if yellow_pill else None,
+                  "battery": yellow_pill['battery'] if yellow_pill else None,
+                  "time": timestamp
+              }
+          }
+
+          # Append new entry and keep last 200
+          history.append(new_entry)
+          history = history[-200:]
+
           # Build data structure
           data = {
               "pills": [
@@ -72,7 +105,8 @@ jobs:
                       "battery": yellow_pill['battery'] if yellow_pill else None
                   }
               ],
-              "lastUpdated": datetime.utcnow().isoformat() + "Z"
+              "lastUpdated": timestamp,
+              "history": history
           }
 
           # Write to data.json
