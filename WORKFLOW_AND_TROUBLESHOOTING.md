@@ -93,11 +93,11 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
 - RAPT Pill sensors continuously measure temperature, gravity, and battery level
 - Data is stored in RAPT Cloud infrastructure
 
-**Step 2: Google Apps Script Trigger**
-- Google Apps Script runs every 15 minutes
-- Authenticates to RAPT API using OAuth2
-- Requests telemetry data for both pills
-- Sends webhook to GitHub to trigger workflow dispatch
+**Step 2: Google Apps Script Trigger (Reliable Scheduler)**
+- Google Apps Script is configured with a time-driven trigger: every 15 minutes
+- POSTs to GitHub Actions workflow dispatch endpoint
+- Uses GitHub Personal Access Token for authentication
+- More reliable than GitHub's built-in cron scheduler
 
 **Step 3: GitHub Actions Workflow**
 - Workflow is triggered by the Google Apps Script
@@ -449,10 +449,16 @@ The RAPT Fermenter Dashboard is a real-time monitoring system for fermentation v
 - **Quarterly:** Review and rotate GitHub PAT if needed
 
 ### 6.2 Monitoring
-- Check "Last Updated" time is current
+- Check "Last Updated" time is current (should update every 15 minutes)
 - Verify battery levels are stable
 - Monitor temperature/gravity trends
 - Watch for any error messages
+
+**Google Apps Script trigger status:**
+- Go to [Google Apps Script Triggers](https://script.google.com/home/projects/1_0qas8CtkeHlyTpcNmgfhEtWGnO8g2XTldoSfZB9pyLUB7J-uEtvhAJ/triggers)
+- Check "Last run" column — should be recent (within last 15 minutes)
+- Check "Error rate" — should be 0%
+- If error rate > 0%, click the trigger to see error logs
 
 ### 6.3 Updating RAPT Credentials
 1. Go to RAPT account settings

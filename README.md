@@ -80,25 +80,44 @@ Your dashboard will be available at: `https://yourusername.github.io/fermenter-d
 3. Click **Run workflow** to test it manually
 4. For automatic scheduled runs, use an external cron service (see below)
 
-### 6. Set Up External Cron Service (Required for Automation)
+### 6. Set Up Google Apps Script for Reliable Automation
 
-GitHub's built-in scheduler is unreliable. Use **cron-job.org** (free) to trigger the workflow:
+GitHub's built-in cron scheduler is unreliable. We use **Google Apps Script** for reliable 15-minute triggers.
 
-1. Go to [cron-job.org](https://cron-job.org)
-2. Sign up (free account)
-3. Create a new cronjob with these settings:
-   - **Title**: `Fermenter Dashboard Update`
-   - **URL**: `https://api.github.com/repos/Pjcoxy/fermenter-dashboard/actions/workflows/fetch-data.yml/dispatches`
-   - **Request Method**: `POST`
-   - **Cron Expression**: `0 */15 * * * *` (every 15 minutes)
-   - **HTTP Auth**:
-     - Username: `x-access-token`
-     - Password: [Your GitHub Personal Access Token](https://github.com/settings/tokens)
-   - **Request Body**: `{"ref":"main"}`
-   - **Headers**: `Content-Type: application/json`
-4. Click **Save** and enable the cronjob
+**If already set up** (project: "Fermenter pill automation"):
+- Script runs every 15 minutes via time-driven trigger
+- POSTs to GitHub Actions workflow dispatch endpoint
+- Status: Check error rate in [Google Apps Script Triggers](https://script.google.com/home/projects/1_0qas8CtkeHlyTpcNmgfhEtWGnO8g2XTldoSfZB9pyLUB7J-uEtvhAJ/triggers)
 
-Done! The workflow will now run every 15 minutes.
+**If setting up new:**
+1. Go to [Google Apps Script](https://script.google.com)
+2. Create new project: `Fermenter Dashboard Trigger`
+3. Replace code with:
+```javascript
+function triggerFermenterWorkflow() {
+  const GITHUB_REPO = 'Pjcoxy/fermenter-dashboard';
+  const GITHUB_TOKEN = 'your_github_pat_here'; // GitHub Personal Access Token
+  
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/fetch-data.yml/dispatches`;
+  
+  const options = {
+    method: 'post',
+    headers: {
+      'Authorization': `token ${GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json'
+    },
+    payload: JSON.stringify({ ref: 'main' }),
+    muteHttpExceptions: true
+  };
+  
+  const response = UrlFetchApp.fetch(url, options);
+  Logger.log('Workflow triggered: ' + response.getResponseCode());
+}
+```
+4. Get [GitHub Personal Access Token](https://github.com/settings/tokens) (scope: `workflow`)
+5. Replace `your_github_pat_here` with your token
+6. Save and test: **Run** button
+7. Set up trigger: **Triggers** → **+ Add Trigger** → Time-driven, Minutes timer, Every 15 minutes
 
 ## API Integration Notes
 
