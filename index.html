@@ -636,17 +636,6 @@
                         <div class="metric-unit">%</div>
                     </div>
                 </div>
-
-                <div class="pill-charts">
-                    <div class="chart-container">
-                        <div class="chart-title">Temperature Trend</div>
-                        <canvas id="chart-temp-reddy" class="chart-canvas"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <div class="chart-title">Gravity Trend</div>
-                        <canvas id="chart-gravity-reddy" class="chart-canvas"></canvas>
-                    </div>
-                </div>
             </div>
 
             <!-- Yellow Pill -->
@@ -672,17 +661,6 @@
                         <div class="metric-label">Battery</div>
                         <div class="metric-value" id="battery-yellow">--</div>
                         <div class="metric-unit">%</div>
-                    </div>
-                </div>
-
-                <div class="pill-charts">
-                    <div class="chart-container">
-                        <div class="chart-title">Temperature Trend</div>
-                        <canvas id="chart-temp-yellow" class="chart-canvas"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <div class="chart-title">Gravity Trend</div>
-                        <canvas id="chart-gravity-yellow" class="chart-canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -802,112 +780,6 @@
             }
         }
 
-        function initCharts() {
-            const chartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.7)',
-                        titleColor: '#e0e0e0',
-                        bodyColor: '#e0e0e0',
-                        borderColor: 'rgba(100,150,255,0.3)',
-                        borderWidth: 1
-                    }
-                },
-                scales: {
-                    y: {
-                        ticks: { color: '#888', font: { size: 10 } },
-                        grid: { color: 'rgba(100,150,255,0.1)' }
-                    },
-                    x: {
-                        ticks: { color: '#888', font: { size: 9 } },
-                        grid: { color: 'rgba(100,150,255,0.1)' }
-                    }
-                }
-            };
-
-            if (!document.getElementById('chart-temp-reddy')) return;
-
-            charts.tempReddy = new Chart(document.getElementById('chart-temp-reddy'), {
-                type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
-                options: chartOptions
-            });
-
-            charts.gravityReddy = new Chart(document.getElementById('chart-gravity-reddy'), {
-                type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
-                options: chartOptions
-            });
-
-            charts.tempYellow = new Chart(document.getElementById('chart-temp-yellow'), {
-                type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: '#ffd93d', backgroundColor: 'rgba(255,217,61,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
-                options: chartOptions
-            });
-
-            charts.gravityYellow = new Chart(document.getElementById('chart-gravity-yellow'), {
-                type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: '#ffd93d', backgroundColor: 'rgba(255,217,61,0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }] },
-                options: chartOptions
-            });
-        }
-
-        function addDataPoint(pill, temp, gravity, time) {
-            chartData[pill].temps.push(temp);
-            chartData[pill].gravities.push(gravity);
-            chartData[pill].times.push(time);
-
-            if (chartData[pill].temps.length > 50) {
-                chartData[pill].temps.shift();
-                chartData[pill].gravities.shift();
-                chartData[pill].times.shift();
-            }
-        }
-
-        function updateCharts() {
-            if (charts.tempReddy) {
-                charts.tempReddy.data.labels = chartData.reddy.times;
-                charts.tempReddy.data.datasets[0].data = chartData.reddy.temps;
-                charts.tempReddy.update('none');
-
-                charts.gravityReddy.data.labels = chartData.reddy.times;
-                charts.gravityReddy.data.datasets[0].data = chartData.reddy.gravities;
-                charts.gravityReddy.update('none');
-
-                charts.tempYellow.data.labels = chartData.yellow.times;
-                charts.tempYellow.data.datasets[0].data = chartData.yellow.temps;
-                charts.tempYellow.update('none');
-
-                charts.gravityYellow.data.labels = chartData.yellow.times;
-                charts.gravityYellow.data.datasets[0].data = chartData.yellow.gravities;
-                charts.gravityYellow.update('none');
-            }
-        }
-
-        function loadHistoryIntoCharts() {
-            if (!allData || !allData.history || allData.history.length === 0) return;
-
-            chartData.reddy = { temps: [], gravities: [], times: [] };
-            chartData.yellow = { temps: [], gravities: [], times: [] };
-
-            allData.history.forEach(entry => {
-                if (entry.reddy && entry.reddy.temperature !== null && entry.reddy.gravity !== null) {
-                    chartData.reddy.temps.push(entry.reddy.temperature);
-                    chartData.reddy.gravities.push(entry.reddy.gravity);
-                    const time = new Date(entry.reddy.time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
-                    chartData.reddy.times.push(time);
-                }
-                if (entry.yellow && entry.yellow.temperature !== null && entry.yellow.gravity !== null) {
-                    chartData.yellow.temps.push(entry.yellow.temperature);
-                    chartData.yellow.gravities.push(entry.yellow.gravity);
-                    const time = new Date(entry.yellow.time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
-                    chartData.yellow.times.push(time);
-                }
-            });
-        }
 
         function updateDisplay() {
             if (!allData || !allData.pills) return;
@@ -962,9 +834,6 @@
             document.getElementById('lastUpdated-time').textContent = perthTimeStr;
             document.getElementById('lastUpdated-ago').textContent = agoStr;
             document.getElementById('error').style.display = 'none';
-
-            loadHistoryIntoCharts();
-            updateCharts();
         }
 
         async function loadData() {
@@ -981,9 +850,7 @@
         }
 
         loadData();
-        setTimeout(initCharts, 500);
-        setInterval(loadData, 1200000);    // Every 20 minutes
-        setInterval(updateDisplay, 1200000); // Every 20 minutes
+        setInterval(loadData, 900000);    // Every 15 minutes (matches workflow)
     </script>
     </div>
 </body>
