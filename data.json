@@ -3,9 +3,9 @@
     {
       "name": "reddymc redface",
       "id": "b593f1b8-8c3d-4f5e-a798-6e7a3569a85b",
-      "temperature": 19.9375,
-      "gravity": 1152.72,
-      "battery": 52.8356
+      "temperature": 19.5625,
+      "gravity": 1152.83,
+      "battery": 52.6593
     },
     {
       "name": "yellow mc yellow face",
@@ -15,22 +15,8 @@
       "battery": 60.1167
     }
   ],
-  "lastUpdated": "2026-07-18T09:05:04.532299Z",
+  "lastUpdated": "2026-07-18T09:20:03.256258Z",
   "history": [
-    {
-      "reddy": {
-        "temperature": 18.4375,
-        "gravity": 1146.21,
-        "battery": 53.9308,
-        "time": "2026-07-16T13:50:06.281796Z"
-      },
-      "yellow": {
-        "temperature": 16.0625,
-        "gravity": 1259.58,
-        "battery": 63.282,
-        "time": "2026-07-16T13:50:06.281796Z"
-      }
-    },
     {
       "reddy": {
         "temperature": 18.375,
@@ -2815,6 +2801,20 @@
         "gravity": 1263.99,
         "battery": 60.1167,
         "time": "2026-07-18T09:05:04.532299Z"
+      }
+    },
+    {
+      "reddy": {
+        "temperature": 19.5625,
+        "gravity": 1152.83,
+        "battery": 52.6593,
+        "time": "2026-07-18T09:20:03.256258Z"
+      },
+      "yellow": {
+        "temperature": 18.6875,
+        "gravity": 1263.99,
+        "battery": 60.1167,
+        "time": "2026-07-18T09:20:03.256258Z"
       }
     }
   ]
