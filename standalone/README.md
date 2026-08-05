@@ -34,16 +34,12 @@ One-time setup takes about 15 minutes.
 3. Delete any code in the editor, then copy in the entire contents of
    [`apps-script/Code.gs`](apps-script/Code.gs) from this folder.
 4. Click the **Save** icon (💾).
-5. In the toolbar dropdown (next to "Debug"), select the function **setup**,
-   then click **Run**.
-   - Google will ask for permission the first time — click **Review
-     permissions**, choose your account, click **Advanced → Go to (project)
-     (unsafe)** (it's your own script, this is normal), then **Allow**.
-   - This creates the sheet tabs — **People**, **Tasks**, **Completions** —
-     and pre-loads the family: **Peter 🧔** and **Tymanda 👩** as parents,
-     **Toby 🦖** and **Ollie 🦊** as kids, all with PIN `1234`.
-6. To change anyone's PIN or avatar later, just edit their row in the
-   **People** tab.
+
+You don't need to run anything — the first time the app talks to the script,
+it auto-creates the tabs (**People**, **Tasks**, **Completions**) and
+pre-loads the family: **Peter 🧔** and **Tymanda 👩** as parents, **Toby 🦖**
+and **Ollie 🦊** as kids, all with PIN `1234`. To change anyone's PIN or
+avatar later, just edit their row in the **People** tab.
 
 ## Step 3 — Deploy the script as a web app
 
@@ -52,7 +48,11 @@ One-time setup takes about 15 minutes.
 3. Set:
    - **Execute as:** Me
    - **Who has access:** Anyone
-4. Click **Deploy**, then **copy the Web app URL** (ends in `/exec`).
+4. Click **Deploy**. Google will ask for permission — click **Review
+   permissions** (or **Authorize access**), choose your account, click
+   **Advanced → Go to (project) (unsafe)** (it's your own script, this is
+   normal), then **Allow**.
+5. **Copy the Web app URL** (ends in `/exec`).
 
 > **Important:** if you ever change the script code later, you must go to
 > **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**
