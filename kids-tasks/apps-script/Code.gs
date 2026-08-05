@@ -2,7 +2,7 @@
 // Deploy as a Web App (Execute as: Me, Who has access: Anyone)
 // then paste the /exec URL into kids-tasks/index.html (APPS_SCRIPT_URL).
 //
-// Run setup() once from the Apps Script editor to create the sheet tabs.
+// Sheet tabs and the family are created automatically on first use.
 
 var SHEET_PEOPLE = 'People';
 var SHEET_TASKS = 'Tasks';
@@ -26,6 +26,7 @@ function handle(req) {
     var lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
+      ensureSetup();
       out = route(req);
     } finally {
       lock.releaseLock();
@@ -53,7 +54,11 @@ function route(req) {
   }
 }
 
-// ---------- One-time setup ----------
+// ---------- One-time setup (runs automatically on first request) ----------
+
+function ensureSetup() {
+  if (!SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_PEOPLE)) setup();
+}
 
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
