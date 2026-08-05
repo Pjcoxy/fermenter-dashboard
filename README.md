@@ -2,6 +2,8 @@
 
 A real-time dashboard that displays fermenter temperature and gravity readings from your RAPT device.
 
+> **Also in this repo:** [Family Task Squad 🚀](kids-tasks/SETUP.md) — a kids' chore/task app served from `kids-tasks/` on the same GitHub Pages site.
+
 ## Features
 
 - 🌡️ Real-time temperature monitoring
