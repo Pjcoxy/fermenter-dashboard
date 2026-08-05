@@ -221,7 +221,7 @@
   <div id="screen-parent" class="hidden">
     <div class="topbar">
       <button class="back-btn" onclick="logout()">← Switch user</button>
-      <strong>👑 Parent HQ</strong>
+      <strong id="p-title">👑 Parent HQ</strong>
     </div>
 
     <h2>⏳ Awaiting your approval</h2>
@@ -318,8 +318,12 @@ async function api(payload) {
     body: JSON.stringify(payload),
   });
   const data = await res.json();
-  if (data.kids) { state = data; render(); }
+  if (data.people) { state = data; render(); }
   return data;
+}
+
+function kidsOnly() {
+  return state.people.filter(p => p.role === 'kid');
 }
 
 async function refresh() {
@@ -369,16 +373,16 @@ function levelFor(points) {
 function render() {
   if (!state) return;
   renderWho();
-  if (session && session.type === 'kid') {
-    const kid = state.kids.find(k => k.id === session.kidId);
-    if (!kid) { logout(); return; }
-    renderKid(kid);
-    show('screen-kid');
-  } else if (session && session.type === 'parent') {
-    renderParent();
-    show('screen-parent');
-  } else {
+  const person = session && state.people.find(p => p.id === session.personId);
+  if (!person) {
+    if (session) { logout(); return; }
     show('screen-who');
+  } else if (session.role === 'kid') {
+    renderKid(person);
+    show('screen-kid');
+  } else {
+    renderParent(person);
+    show('screen-parent');
   }
 }
 
@@ -390,12 +394,10 @@ function show(id) {
 function renderWho() {
   document.getElementById('loading').classList.add('hidden');
   const grid = document.getElementById('who-grid');
-  grid.innerHTML = state.kids.map(k =>
-    `<button class="who-card" onclick="pickKid('${k.id}')">
-       <span class="avatar">${k.emoji}</span>${esc(k.name)}
-     </button>`).join('') +
-    `<button class="who-card parent" onclick="pickParent()">
-       <span class="avatar">👑</span>Parent</button>`;
+  grid.innerHTML = state.people.map(p =>
+    `<button class="who-card ${p.role === 'parent' ? 'parent' : ''}" onclick="pickPerson('${p.id}')">
+       <span class="avatar">${p.emoji}</span>${esc(p.name)}${p.role === 'parent' ? ' 👑' : ''}
+     </button>`).join('');
 }
 
 function renderKid(kid) {
@@ -429,7 +431,7 @@ function renderKid(kid) {
   renderTaskList('k-oneoff', oneoffs, '');
 
   // Leaderboard
-  const ranked = [...state.kids]
+  const ranked = kidsOnly()
     .map(k => ({ ...k, pts: (state.stats[k.id] || {}).points || 0 }))
     .sort((a, b) => b.pts - a.pts);
   const medals = ['🥇', '🥈', '🥉'];
@@ -469,7 +471,8 @@ function renderTaskList(elId, tasks, emptyMsg) {
   }).join('');
 }
 
-function renderParent() {
+function renderParent(person) {
+  document.getElementById('p-title').textContent = `👑 ${person.name}'s HQ`;
   // Pending approvals
   const pending = state.completions.filter(c => c.status === 'pending');
   const el = document.getElementById('p-pending');
@@ -477,7 +480,7 @@ function renderParent() {
     el.innerHTML = '<div class="empty">Nothing waiting — all caught up! ✨</div>';
   } else {
     el.innerHTML = pending.map(c => {
-      const kid = state.kids.find(k => k.id === c.kidId) || { name: '?', emoji: '❓' };
+      const kid = state.people.find(k => k.id === c.kidId) || { name: '?', emoji: '❓' };
       const isExtra = !c.taskId;
       return `<div class="card">
         <div style="display:flex;align-items:center;gap:8px">
@@ -499,12 +502,12 @@ function renderParent() {
   // Kid dropdown
   const sel = document.getElementById('p-kid');
   const current = sel.value;
-  sel.innerHTML = state.kids.map(k => `<option value="${k.id}">${k.emoji} ${esc(k.name)}</option>`).join('');
+  sel.innerHTML = kidsOnly().map(k => `<option value="${k.id}">${k.emoji} ${esc(k.name)}</option>`).join('');
   if (current) sel.value = current;
 
   // Task list grouped by kid
   const cycleLabel = { daily: 'daily', weekly: 'weekly', oneoff: 'one-off' };
-  document.getElementById('p-tasks').innerHTML = state.kids.map(k => {
+  document.getElementById('p-tasks').innerHTML = kidsOnly().map(k => {
     const mine = state.tasks.filter(t => t.kidId === k.id);
     if (mine.length === 0) return '';
     return `<div class="card">
@@ -526,20 +529,15 @@ function esc(s) {
 }
 
 // ---------- Login flow ----------
-function pickKid(kidId) {
-  const kid = state.kids.find(k => k.id === kidId);
-  if (!kid.hasPin) {
-    session = { type: 'kid', kidId };
+function pickPerson(personId) {
+  const p = state.people.find(x => x.id === personId);
+  if (!p.hasPin) {
+    session = { personId: p.id, role: p.role, pin: '' };
     saveSession(); render();
     return;
   }
-  pinTarget = { type: 'kid', kidId };
-  openPin(`Hi ${kid.name}! Enter your PIN`);
-}
-
-function pickParent() {
-  pinTarget = { type: 'parent' };
-  openPin('Parent PIN');
+  pinTarget = p;
+  openPin(`Hi ${p.name}! Enter your PIN`);
 }
 
 function openPin(title) {
@@ -556,15 +554,9 @@ async function submitPin() {
   const err = document.getElementById('pin-err');
   err.textContent = 'Checking…';
   try {
-    let res;
-    if (pinTarget.type === 'kid') {
-      res = await api({ action: 'login', kidId: pinTarget.kidId, pin });
-      if (res.ok) session = { type: 'kid', kidId: pinTarget.kidId };
-    } else {
-      res = await api({ action: 'parentLogin', parentPin: pin });
-      if (res.ok) session = { type: 'parent', parentPin: pin };
-    }
+    const res = await api({ action: 'login', personId: pinTarget.id, pin });
     if (res.ok) {
+      session = { personId: pinTarget.id, role: res.role, pin: res.role === 'parent' ? pin : '' };
       saveSession(); closePin(); render();
     } else {
       err.textContent = 'Hmm, that PIN isn\'t right. Try again!';
@@ -596,7 +588,7 @@ async function addExtraPrompt() {
   const title = prompt('What did you do? 🌟');
   if (!title || !title.trim()) return;
   toast('Sent to your grown-up! ⏳');
-  await api({ action: 'addExtra', kidId: session.kidId, title: title.trim() });
+  await api({ action: 'addExtra', kidId: session.personId, title: title.trim() });
 }
 
 // ---------- Parent actions ----------
@@ -604,7 +596,7 @@ async function parentAddTask() {
   const title = document.getElementById('p-title').value.trim();
   if (!title) { toast('Type or speak a task first!'); return; }
   const payload = {
-    action: 'addTask', parentPin: session.parentPin,
+    action: 'addTask', parentId: session.personId, parentPin: session.pin,
     kidId: document.getElementById('p-kid').value,
     title,
     cycle: document.getElementById('p-cycle').value,
@@ -622,23 +614,23 @@ async function parentApprove(completionId, isExtra) {
     if (points === null) return;
   }
   celebrate();
-  await api({ action: 'approve', parentPin: session.parentPin, completionId, points });
+  await api({ action: 'approve', parentId: session.personId, parentPin: session.pin, completionId, points });
 }
 
 async function parentReject(completionId) {
-  await api({ action: 'reject', parentPin: session.parentPin, completionId });
+  await api({ action: 'reject', parentId: session.personId, parentPin: session.pin, completionId });
 }
 
 async function parentDeleteTask(taskId) {
   if (!confirm('Remove this task?')) return;
-  await api({ action: 'deleteTask', parentPin: session.parentPin, taskId });
+  await api({ action: 'deleteTask', parentId: session.personId, parentPin: session.pin, taskId });
 }
 
 async function parentAddKid() {
   const name = document.getElementById('p-kid-name').value.trim();
   if (!name) { toast('Enter a name first!'); return; }
   const payload = {
-    action: 'addKid', parentPin: session.parentPin, name,
+    action: 'addKid', parentId: session.personId, parentPin: session.pin, name,
     emoji: document.getElementById('p-kid-emoji').value,
     pin: document.getElementById('p-kid-pin').value.trim(),
   };

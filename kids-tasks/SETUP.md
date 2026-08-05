@@ -29,10 +29,11 @@ One-time setup takes about 15 minutes.
    - Google will ask for permission the first time — click **Review
      permissions**, choose your account, click **Advanced → Go to (project)
      (unsafe)** (it's your own script, this is normal), then **Allow**.
-   - This creates the sheet tabs: **Kids**, **Tasks**, **Completions**,
-     **Config**.
-6. Back in the spreadsheet, open the **Config** tab and change the parent PIN
-   from `1234` to whatever you want.
+   - This creates the sheet tabs — **People**, **Tasks**, **Completions** —
+     and pre-loads the family: **Peter 🧔** and **Tymanda 👩** as parents,
+     **Toby 🦖** and **Ollie 🦊** as kids, all with PIN `1234`.
+6. To change anyone's PIN or avatar later, just edit their row in the
+   **People** tab.
 
 ## Step 2 — Deploy the script as a web app
 
@@ -68,8 +69,8 @@ Once GitHub Pages deploys (a few seconds after pushing), the app is live at:
 https://<your-username>.github.io/<repo-name>/kids-tasks/
 ```
 
-Add your kids from the **Parent** view (👑 card → parent PIN → "Add a kid"),
-then start allocating tasks. Tell the kids to bookmark the URL — on both
+Everyone taps their own card — Peter and Tymanda get Parent HQ, Toby and
+Ollie get the kid view. Tell the kids to bookmark the URL — on both
 Android and iPhone they can use **"Add to Home Screen"** so it looks like a
 real app.
 
@@ -78,7 +79,7 @@ real app.
 ## Daily use
 
 ### Kids
-- Tap your avatar (enter your PIN if you have one).
+- Tap your avatar and enter your PIN.
 - Tap the circle next to a task when it's done → 🎉 confetti → it shows
   **"Waiting for a grown-up to check"**.
 - Tap **"➕ I did something extra!"** to tell your parent about a job you did
@@ -87,7 +88,7 @@ real app.
   leaderboard.
 
 ### Parents
-- Tap the **👑 Parent** card and enter the parent PIN.
+- Tap your own card (👑) and enter your PIN — both parents have full access.
 - **Awaiting your approval** — approve (✓) or reject (✗) what kids ticked.
   Points only land when you approve. Kid-added extras ask you how many points
   they're worth.
@@ -108,10 +109,9 @@ Everything is in your Google Sheet — open it anytime:
 
 | Tab | Contains |
 |-----|----------|
-| Kids | Name, avatar emoji, PIN |
+| People | Everyone's name, avatar emoji, PIN, and role (parent or kid) |
 | Tasks | Allocated tasks: who, what, points, how often |
 | Completions | Every tick-off: date, status (pending/approved/rejected), points |
-| Config | The parent PIN |
 
 You can edit the Sheet directly (e.g. change a PIN, fix a typo in a task) and
 the app picks it up on its next refresh (within a minute, or on reopening).
@@ -123,8 +123,7 @@ the app picks it up on its next refresh (within a minute, or on reopening).
 | Page says "Setup needed" | `APPS_SCRIPT_URL` in index.html is still empty — do Step 3 |
 | Stuck on "Loading…" | Check the `/exec` URL is right and deployed with access set to **Anyone** |
 | Changes to Code.gs don't take effect | You must create a **New version** under Deploy → Manage deployments |
-| Kid forgot their PIN | Open the Sheet → Kids tab → read/change their PIN |
-| Forgot the parent PIN | Open the Sheet → Config tab |
+| Anyone forgot their PIN | Open the Sheet → People tab → read/change their PIN |
 | Points look wrong | Check the Completions tab — points count only when status is `approved` |
 
 ## Security notes (honest version)

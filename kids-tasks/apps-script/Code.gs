@@ -4,10 +4,9 @@
 //
 // Run setup() once from the Apps Script editor to create the sheet tabs.
 
-var SHEET_KIDS = 'Kids';
+var SHEET_PEOPLE = 'People';
 var SHEET_TASKS = 'Tasks';
 var SHEET_DONE = 'Completions';
-var SHEET_CONFIG = 'Config';
 
 // ---------- Entry points ----------
 
@@ -42,7 +41,6 @@ function route(req) {
   switch (req.action) {
     case 'state':        return getState();
     case 'login':        return login(req);
-    case 'parentLogin':  return parentLogin(req);
     case 'addTask':      return addTask(req);
     case 'deleteTask':   return deleteTask(req);
     case 'completeTask': return completeTask(req);
@@ -59,12 +57,14 @@ function route(req) {
 
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  makeSheet(ss, SHEET_KIDS, ['id', 'name', 'emoji', 'pin']);
+  var people = makeSheet(ss, SHEET_PEOPLE, ['id', 'name', 'emoji', 'pin', 'role']);
   makeSheet(ss, SHEET_TASKS, ['id', 'kidId', 'title', 'points', 'cycle', 'createdAt', 'active']);
   makeSheet(ss, SHEET_DONE, ['id', 'taskId', 'kidId', 'title', 'points', 'date', 'status', 'createdAt']);
-  var cfg = makeSheet(ss, SHEET_CONFIG, ['key', 'value']);
-  if (cfg.getLastRow() < 2) {
-    cfg.appendRow(['parentPin', '1234']);
+  if (people.getLastRow() < 2) {
+    people.appendRow(['peter',   'Peter',   '🧔', '1234', 'parent']);
+    people.appendRow(['tymanda', 'Tymanda', '👩', '1234', 'parent']);
+    people.appendRow(['toby',    'Toby',    '🦖', '1234', 'kid']);
+    people.appendRow(['ollie',   'Ollie',   '🦊', '1234', 'kid']);
   }
 }
 
@@ -101,17 +101,16 @@ function todayStr() {
   return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
 }
 
-function getConfig(key) {
-  var all = rows(SHEET_CONFIG);
-  for (var i = 0; i < all.length; i++) {
-    if (String(all[i].key) === key) return String(all[i].value);
-  }
-  return '';
-}
-
 function checkParent(req) {
-  var pin = getConfig('parentPin');
-  if (!pin || String(req.parentPin) !== pin) throw 'Wrong parent PIN';
+  var people = rows(SHEET_PEOPLE);
+  for (var i = 0; i < people.length; i++) {
+    var p = people[i];
+    if (String(p.id) === String(req.parentId) && String(p.role) === 'parent' &&
+        String(p.pin) === String(req.parentPin)) {
+      return;
+    }
+  }
+  throw 'Wrong parent PIN';
 }
 
 function findRow(name, id) {
@@ -126,8 +125,12 @@ function findRow(name, id) {
 // ---------- Actions ----------
 
 function getState() {
-  var kids = rows(SHEET_KIDS).map(function (k) {
-    return { id: String(k.id), name: String(k.name), emoji: String(k.emoji), hasPin: String(k.pin) !== '' };
+  var people = rows(SHEET_PEOPLE).map(function (p) {
+    return {
+      id: String(p.id), name: String(p.name), emoji: String(p.emoji),
+      role: String(p.role) === 'parent' ? 'parent' : 'kid',
+      hasPin: String(p.pin) !== ''
+    };
   });
   var tasks = rows(SHEET_TASKS).filter(function (t) {
     return String(t.active) !== 'false' && String(t.active) !== 'FALSE';
@@ -148,14 +151,15 @@ function getState() {
 
   // Points = sum of approved completions; streak = consecutive days with >=1 approved/pending completion
   var stats = {};
-  kids.forEach(function (k) {
-    var mine = done.filter(function (d) { return d.kidId === k.id; });
+  people.forEach(function (p) {
+    if (p.role !== 'kid') return;
+    var mine = done.filter(function (d) { return d.kidId === p.id; });
     var points = mine.filter(function (d) { return d.status === 'approved'; })
       .reduce(function (s, d) { return s + d.points; }, 0);
-    stats[k.id] = { points: points, streak: calcStreak(mine) };
+    stats[p.id] = { points: points, streak: calcStreak(mine) };
   });
 
-  return { ok: true, kids: kids, tasks: tasks, completions: done, stats: stats, today: todayStr() };
+  return { ok: true, people: people, tasks: tasks, completions: done, stats: stats, today: todayStr() };
 }
 
 function normDate(v) {
@@ -186,20 +190,18 @@ function fmt(d) {
 }
 
 function login(req) {
-  var kids = rows(SHEET_KIDS);
-  for (var i = 0; i < kids.length; i++) {
-    if (String(kids[i].id) === String(req.kidId)) {
-      var pin = String(kids[i].pin);
-      if (pin === '' || pin === String(req.pin)) return { ok: true };
+  var people = rows(SHEET_PEOPLE);
+  for (var i = 0; i < people.length; i++) {
+    var p = people[i];
+    if (String(p.id) === String(req.personId)) {
+      var pin = String(p.pin);
+      if (pin === '' || pin === String(req.pin)) {
+        return { ok: true, role: String(p.role) === 'parent' ? 'parent' : 'kid' };
+      }
       return { ok: false, error: 'Wrong PIN' };
     }
   }
-  return { ok: false, error: 'Kid not found' };
-}
-
-function parentLogin(req) {
-  checkParent(req);
-  return { ok: true };
+  return { ok: false, error: 'Person not found' };
 }
 
 function addTask(req) {
@@ -275,8 +277,8 @@ function reject(req) {
 
 function addKid(req) {
   checkParent(req);
-  sheet(SHEET_KIDS).appendRow([
-    newId(), String(req.name), String(req.emoji || '🙂'), String(req.pin || '')
+  sheet(SHEET_PEOPLE).appendRow([
+    newId(), String(req.name), String(req.emoji || '🙂'), String(req.pin || ''), 'kid'
   ]);
   return getState();
 }
