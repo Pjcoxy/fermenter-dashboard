@@ -18,12 +18,16 @@ One-time setup takes about 15 minutes.
 
 ## Step 1 — Create the Google Sheet + script
 
-1. Go to [sheets.google.com](https://sheets.google.com) and create a new blank
-   spreadsheet. Name it anything, e.g. **Kids Tasks**.
-2. In the menu, click **Extensions → Apps Script**.
-3. Delete any code in the editor, then copy in the entire contents of
+The spreadsheet ("Kids Tasks") already exists in Google Drive, and the script
+points at it by ID (`SHEET_ID` at the top of the code), so the script can be
+created directly at the Apps Script site:
+
+1. Go to [script.google.com/create](https://script.google.com/create)
+   (on a phone, use the browser with "Desktop site" turned on if the editor
+   doesn't load).
+2. Delete any code in the editor, then copy in the entire contents of
    [`apps-script/Code.gs`](apps-script/Code.gs) from this folder.
-4. Click the **Save** icon (💾).
+3. Click the **Save** icon (💾).
 
 You don't need to run anything — the first time the app talks to the script,
 it auto-creates the tabs (**People**, **Tasks**, **Completions**) and

@@ -3,6 +3,12 @@
 // then paste the /exec URL into kids-tasks/index.html (APPS_SCRIPT_URL).
 //
 // Sheet tabs and the family are created automatically on first use.
+//
+// SHEET_ID points at the Kids Tasks spreadsheet, so this script can be
+// created at script.google.com directly — no need to open the sheet's
+// Extensions menu.
+
+var SHEET_ID = '1cRLDR3YIBvoJb1wHf8WRhNcQKUEtKQ-LG4YFWcAMSZA';
 
 var SHEET_PEOPLE = 'People';
 var SHEET_TASKS = 'Tasks';
@@ -57,14 +63,13 @@ function route(req) {
 // ---------- One-time setup (runs automatically on first request) ----------
 
 function ensureSetup() {
-  if (!SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_PEOPLE)) setup();
+  if (!ss().getSheetByName(SHEET_PEOPLE)) setup();
 }
 
 function setup() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var people = makeSheet(ss, SHEET_PEOPLE, ['id', 'name', 'emoji', 'pin', 'role']);
-  makeSheet(ss, SHEET_TASKS, ['id', 'kidId', 'title', 'points', 'cycle', 'createdAt', 'active']);
-  makeSheet(ss, SHEET_DONE, ['id', 'taskId', 'kidId', 'title', 'points', 'date', 'status', 'createdAt']);
+  var people = makeSheet(ss(), SHEET_PEOPLE, ['id', 'name', 'emoji', 'pin', 'role']);
+  makeSheet(ss(), SHEET_TASKS, ['id', 'kidId', 'title', 'points', 'cycle', 'createdAt', 'active']);
+  makeSheet(ss(), SHEET_DONE, ['id', 'taskId', 'kidId', 'title', 'points', 'date', 'status', 'createdAt']);
   if (people.getLastRow() < 2) {
     people.appendRow(['peter',   'Peter',   '🧔', '1234', 'parent']);
     people.appendRow(['tymanda', 'Tymanda', '👩', '1234', 'parent']);
@@ -82,8 +87,12 @@ function makeSheet(ss, name, headers) {
 
 // ---------- Helpers ----------
 
+function ss() {
+  return SpreadsheetApp.openById(SHEET_ID);
+}
+
 function sheet(name) {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  return ss().getSheetByName(name);
 }
 
 function rows(name) {
