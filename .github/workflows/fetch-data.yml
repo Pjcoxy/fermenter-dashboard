@@ -17,6 +17,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check monitoring flag
+        run: |
+          ENABLED=$(python3 -c "import json; d=json.load(open('data.json')); print(d.get('monitoringEnabled', True))")
+          if [ "$ENABLED" = "False" ]; then
+            echo "Monitoring is disabled. Exiting early."
+            exit 0
+          fi
+
       - name: Get RAPT access token
         id: auth
         run: |
@@ -64,6 +72,9 @@ jobs:
           except:
               pass
 
+          # Preserve monitoring flag
+          monitoring_enabled = existing_data.get('monitoringEnabled', True)
+
           # Get or initialize history array
           history = existing_data.get('history', [])
 
@@ -87,8 +98,9 @@ jobs:
           history.append(new_entry)
           history = history[-200:]
 
-          # Build data structure
+          # Build data structure (monitoringEnabled preserved from existing file)
           data = {
+              "monitoringEnabled": monitoring_enabled,
               "pills": [
                   {
                       "name": reddy_pill['name'] if reddy_pill else "reddymc redface",

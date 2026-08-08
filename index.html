@@ -112,6 +112,145 @@
             border-color: rgba(255, 107, 107, 0.5);
         }
 
+        .monitoring-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: 1px solid;
+        }
+
+        .monitoring-btn.monitoring-on {
+            background: rgba(100, 200, 100, 0.15);
+            color: #7ff593;
+            border-color: rgba(100, 200, 100, 0.3);
+        }
+
+        .monitoring-btn.monitoring-on:hover {
+            background: rgba(100, 200, 100, 0.25);
+            border-color: rgba(100, 200, 100, 0.5);
+        }
+
+        .monitoring-btn.monitoring-off {
+            background: rgba(255, 150, 50, 0.15);
+            color: #ffb347;
+            border-color: rgba(255, 150, 50, 0.3);
+        }
+
+        .monitoring-btn.monitoring-off:hover {
+            background: rgba(255, 150, 50, 0.25);
+            border-color: rgba(255, 150, 50, 0.5);
+        }
+
+        .monitoring-btn.monitoring-updating {
+            background: rgba(150, 150, 150, 0.15);
+            color: #888;
+            border-color: rgba(150, 150, 150, 0.3);
+            cursor: default;
+        }
+
+        .pat-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pat-modal.open {
+            display: flex;
+        }
+
+        .pat-modal-box {
+            background: linear-gradient(135deg, rgba(30, 50, 90, 0.95) 0%, rgba(15, 25, 50, 0.98) 100%);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 480px;
+            width: 90%;
+            backdrop-filter: blur(10px);
+        }
+
+        .pat-modal-box h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        .pat-modal-box p {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .pat-modal-box code {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #a0c8ff;
+        }
+
+        .pat-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(20, 40, 70, 0.6);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 13px;
+            font-family: monospace;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .pat-input:focus {
+            outline: none;
+            border-color: rgba(100, 150, 255, 0.6);
+        }
+
+        .pat-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .pat-cancel-btn {
+            padding: 10px 20px;
+            background: rgba(255, 107, 107, 0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pat-save-btn {
+            padding: 10px 20px;
+            background: rgba(100, 200, 100, 0.2);
+            color: #7ff593;
+            border: 1px solid rgba(100, 200, 100, 0.35);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pat-save-btn:hover {
+            background: rgba(100, 200, 100, 0.3);
+        }
+
         /* Header */
         .header {
             display: flex;
@@ -596,6 +735,7 @@
             <div class="user-info">
                 Signed in as <span class="user-name" id="user-email">--</span>
             </div>
+            <button id="monitoring-btn" class="monitoring-btn monitoring-on" onclick="toggleMonitoring()">● Monitoring ON</button>
             <button class="sign-out-btn" onclick="handleSignOut()">Sign Out</button>
         </div>
 
@@ -685,6 +825,24 @@
         </div>
 
         <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <div id="pat-modal" class="pat-modal">
+        <div class="pat-modal-box">
+            <h2>GitHub Token Required</h2>
+            <p>
+                To toggle monitoring, a GitHub Personal Access Token is needed. Create one at:<br><br>
+                <strong style="color:#e0e0e0;">GitHub → Settings → Developer settings → Fine-grained tokens</strong><br><br>
+                Set repository to <code>pjcoxy/fermenter-dashboard</code> and permission <strong style="color:#e0e0e0;">Contents → Read and Write</strong>.<br><br>
+                The token is saved only in your browser (localStorage) and never sent anywhere except GitHub's API.
+            </p>
+            <input id="pat-input" class="pat-input" type="password" placeholder="Paste your GitHub PAT here"
+                   onkeydown="if(event.key==='Enter') savePat()">
+            <div class="pat-modal-actions">
+                <button class="pat-cancel-btn" onclick="closePatModal()">Cancel</button>
+                <button class="pat-save-btn" onclick="savePat()">Save &amp; Toggle</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -789,12 +947,12 @@
 
             document.getElementById('reddy-name').textContent = reddy.name || 'reddymc redface';
             document.getElementById('temp-reddy').textContent = reddy.temperature !== null ? reddy.temperature.toFixed(2) : '--';
-            document.getElementById('gravity-reddy').textContent = reddy.gravity !== null ? reddy.gravity.toFixed(2) : '--';
+            document.getElementById('gravity-reddy').textContent = reddy.gravity !== null ? (reddy.gravity / 1000).toFixed(3) : '--';
             document.getElementById('battery-reddy').textContent = reddy.battery !== null ? reddy.battery.toFixed(0) : '--';
 
             document.getElementById('yellow-name').textContent = yellow.name || 'yellow mc yellow face';
             document.getElementById('temp-yellow').textContent = yellow.temperature !== null ? yellow.temperature.toFixed(2) : '--';
-            document.getElementById('gravity-yellow').textContent = yellow.gravity !== null ? yellow.gravity.toFixed(2) : '--';
+            document.getElementById('gravity-yellow').textContent = yellow.gravity !== null ? (yellow.gravity / 1000).toFixed(3) : '--';
             document.getElementById('battery-yellow').textContent = yellow.battery !== null ? yellow.battery.toFixed(0) : '--';
 
             const lastUpdate = new Date(allData.lastUpdated);
@@ -834,6 +992,105 @@
             document.getElementById('lastUpdated-time').textContent = perthTimeStr;
             document.getElementById('lastUpdated-ago').textContent = agoStr;
             document.getElementById('error').style.display = 'none';
+
+            updateMonitoringButton();
+        }
+
+        // ── Monitoring toggle ──────────────────────────────────────────────
+
+        function updateMonitoringButton() {
+            const btn = document.getElementById('monitoring-btn');
+            if (!btn) return;
+            const enabled = allData ? allData.monitoringEnabled !== false : true;
+            if (enabled) {
+                btn.textContent = '● Monitoring ON';
+                btn.className = 'monitoring-btn monitoring-on';
+            } else {
+                btn.textContent = '● Monitoring OFF';
+                btn.className = 'monitoring-btn monitoring-off';
+            }
+            btn.disabled = false;
+        }
+
+        async function toggleMonitoring() {
+            const pat = localStorage.getItem('github_pat');
+            if (!pat) {
+                showPatModal();
+                return;
+            }
+
+            const enabled = allData ? allData.monitoringEnabled !== false : true;
+            const newEnabled = !enabled;
+
+            const btn = document.getElementById('monitoring-btn');
+            btn.textContent = '◌ Updating...';
+            btn.className = 'monitoring-btn monitoring-updating';
+            btn.disabled = true;
+
+            try {
+                const getResp = await fetch(
+                    'https://api.github.com/repos/pjcoxy/fermenter-dashboard/contents/data.json',
+                    { headers: { 'Authorization': `Bearer ${pat}`, 'Accept': 'application/vnd.github+json' } }
+                );
+                if (!getResp.ok) {
+                    if (getResp.status === 401) localStorage.removeItem('github_pat');
+                    throw new Error(`GitHub API error ${getResp.status}${getResp.status === 401 ? ' — token invalid, please re-enter' : ''}`);
+                }
+                const fileData = await getResp.json();
+
+                const currentContent = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
+                currentContent.monitoringEnabled = newEnabled;
+                const newContentB64 = btoa(unescape(encodeURIComponent(JSON.stringify(currentContent, null, 2))));
+
+                const putResp = await fetch(
+                    'https://api.github.com/repos/pjcoxy/fermenter-dashboard/contents/data.json',
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${pat}`,
+                            'Accept': 'application/vnd.github+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Toggle monitoring: ${newEnabled ? 'on' : 'off'}`,
+                            content: newContentB64,
+                            sha: fileData.sha
+                        })
+                    }
+                );
+                if (!putResp.ok) {
+                    const errData = await putResp.json().catch(() => ({}));
+                    throw new Error(errData.message || `HTTP ${putResp.status}`);
+                }
+
+                if (allData) allData.monitoringEnabled = newEnabled;
+                updateMonitoringButton();
+            } catch (err) {
+                console.error('Monitoring toggle failed:', err);
+                updateMonitoringButton();
+                const errDiv = document.getElementById('error');
+                errDiv.style.display = 'block';
+                errDiv.textContent = `Toggle failed: ${err.message}`;
+                setTimeout(() => { errDiv.style.display = 'none'; }, 7000);
+            }
+        }
+
+        function showPatModal() {
+            document.getElementById('pat-modal').classList.add('open');
+            setTimeout(() => document.getElementById('pat-input').focus(), 50);
+        }
+
+        function closePatModal() {
+            document.getElementById('pat-modal').classList.remove('open');
+            document.getElementById('pat-input').value = '';
+        }
+
+        function savePat() {
+            const pat = document.getElementById('pat-input').value.trim();
+            if (!pat) return;
+            localStorage.setItem('github_pat', pat);
+            closePatModal();
+            toggleMonitoring();
         }
 
         async function loadData() {
