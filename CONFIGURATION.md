@@ -2,6 +2,8 @@
 
 This document lists all configurable elements and where to change them.
 
+> **⛔ Automatic data fetching is permanently disabled (2026-08-26).** The `.github/workflows/fetch-data.yml` workflow was deleted, so all references to it below are historical. Nothing updates `data.json` anymore, and the dashboard's Monitoring ON/OFF button has no effect. To re-enable: restore the workflow file from git history (`git checkout 563f402 -- .github/workflows/fetch-data.yml`), commit and push to main, and re-create the Google Apps Script time trigger.
+
 ## Pill Configuration
 
 ### Current Pills
