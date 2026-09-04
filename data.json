@@ -16,22 +16,8 @@
       "battery": 70.6803
     }
   ],
-  "lastUpdated": "2026-09-04T18:20:05.924066Z",
+  "lastUpdated": "2026-09-04T18:27:16.678680Z",
   "history": [
-    {
-      "reddy": {
-        "temperature": 17.3125,
-        "gravity": 1024.99,
-        "battery": 100,
-        "time": "2026-09-02T19:50:04.976132Z"
-      },
-      "yellow": {
-        "temperature": 16.875,
-        "gravity": 1022.16,
-        "battery": 71.8897,
-        "time": "2026-09-02T19:50:04.976132Z"
-      }
-    },
     {
       "reddy": {
         "temperature": 17.25,
@@ -2816,6 +2802,20 @@
         "gravity": 1015.03,
         "battery": 70.6803,
         "time": "2026-09-04T18:20:05.924066Z"
+      }
+    },
+    {
+      "reddy": {
+        "temperature": 17.875,
+        "gravity": 1013.04,
+        "battery": 100,
+        "time": "2026-09-04T18:27:16.678680Z"
+      },
+      "yellow": {
+        "temperature": 17.6875,
+        "gravity": 1015.03,
+        "battery": 70.6803,
+        "time": "2026-09-04T18:27:16.678680Z"
       }
     }
   ]
