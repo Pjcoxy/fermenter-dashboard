@@ -2,6 +2,8 @@
 
 A real-time dashboard that displays fermenter temperature and gravity readings from your RAPT device.
 
+> **⛔ Automatic data fetching is permanently disabled (2026-08-26).** The `Fetch RAPT Data` workflow was removed to stop the every-15-minute runs and the "No jobs were run" notification emails. The dashboard still displays the last data saved in `data.json`. To re-enable monitoring, restore `.github/workflows/fetch-data.yml` from git history (`git checkout 563f402 -- .github/workflows/fetch-data.yml`) and re-create the Google Apps Script time trigger.
+
 > **Also in this repo:** [Family Task Squad 🚀](kids-tasks/SETUP.md) — a kids' chore/task app served from `kids-tasks/` on the same GitHub Pages site.
 
 ## Features

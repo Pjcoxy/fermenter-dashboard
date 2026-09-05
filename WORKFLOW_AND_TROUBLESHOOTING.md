@@ -1,6 +1,8 @@
 # RAPT Fermenter Dashboard
 ## Workflow & Troubleshooting Guide
 
+> **⛔ Automatic data fetching is permanently disabled (2026-08-26).** The `Fetch RAPT Data` GitHub Actions workflow was deleted to stop the every-15-minute runs and their notification emails. Descriptions of the automatic update pipeline below are historical. The dashboard still serves the last saved `data.json`. The Google Apps Script trigger should also be deleted (Apps Script → Triggers → delete the 15-minute trigger), otherwise it keeps calling the now-removed workflow.
+
 ---
 
 ## Table of Contents
